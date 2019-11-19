@@ -31,15 +31,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
-/**
- *
- * @author macbook
- */
 public class SaldoClientes extends javax.swing.JFrame {
-
-    /**
-     * Creates new form SaldoClientes
-     */
     public SaldoClientes() {
         initComponents();
    this.setIconImage (new ImageIcon(this.getClass().getResource("Images/Screenshot_1.png")).getImage());
@@ -225,7 +217,7 @@ TableRowSorter trs;
         table.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
         table.setFocusTraversalPolicyProvider(true);
         table.setFocusable(false);
-        table.setGridColor(new java.awt.Color(255, 255, 255));
+        table.setGridColor(new java.awt.Color(153, 153, 153));
         table.setRowHeight(22);
         table.setSelectionBackground(new java.awt.Color(204, 204, 204));
         table.setSelectionForeground(new java.awt.Color(0, 0, 0));
@@ -352,7 +344,7 @@ txtBusqueda2.addKeyListener(new KeyAdapter(){
          Save.ingreso=1;
       try{
   Save.Client=Integer.parseInt(table.getValueAt(table.getSelectedRow(), 0).toString());
-       
+       Save.Clienttext=table.getValueAt(table.getSelectedRow(), 1).toString();
         Save.Sale=Integer.parseInt(table.getValueAt(table.getSelectedRow(), 0).toString());
         RegistroIngresos form=new RegistroIngresos();
         form.setModal(true);

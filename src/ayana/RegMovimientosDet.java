@@ -24,6 +24,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.RowFilter;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
@@ -47,6 +48,8 @@ public class RegMovimientosDet extends javax.swing.JDialog {
         table.getTableHeader().setForeground(Color.black);
         table.getTableHeader().setFont(new Font("InaiMathi", 0, 20)); 
         Icon fondo4 = new ImageIcon(imagen4.getImage().getScaledInstance(25, 25, Image.SCALE_SMOOTH));
+         DefaultTableCellRenderer tcr = new DefaultTableCellRenderer();
+        table.getColumnModel().getColumn(0).setCellRenderer(tcr);
         txtBuscar.setIcon(fondo4);
         con=new Conexion();
         model=(DefaultTableModel)table.getModel();
@@ -93,6 +96,7 @@ TableRowSorter trs;
         jScrollPane3 = new javax.swing.JScrollPane();
         txtBusqueda = new javax.swing.JTextPane();
         txtBuscar = new javax.swing.JLabel();
+        btnAgregarPago = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
@@ -138,6 +142,19 @@ TableRowSorter trs;
         txtBuscar.setForeground(new java.awt.Color(51, 51, 51));
         txtBuscar.setText("Buscar:");
 
+        btnAgregarPago.setBackground(new java.awt.Color(217, 234, 220));
+        btnAgregarPago.setFont(new java.awt.Font("InaiMathi", 0, 12)); // NOI18N
+        btnAgregarPago.setForeground(new java.awt.Color(51, 51, 51));
+        btnAgregarPago.setText("Agregar movimiento");
+        btnAgregarPago.setToolTipText("");
+        btnAgregarPago.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(145, 146, 147)));
+        btnAgregarPago.setFocusTraversalPolicyProvider(true);
+        btnAgregarPago.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAgregarPagoActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -151,7 +168,8 @@ TableRowSorter trs;
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(cbxFiltro, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(175, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
+                .addComponent(btnAgregarPago, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -161,7 +179,8 @@ TableRowSorter trs;
                     .addComponent(txtBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cbxFiltro, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(cbxFiltro, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnAgregarPago, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -200,7 +219,7 @@ TableRowSorter trs;
         });
         table.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
         table.setColumnSelectionAllowed(true);
-        table.setGridColor(new java.awt.Color(255, 255, 255));
+        table.setGridColor(new java.awt.Color(153, 153, 153));
         table.setMinimumSize(new java.awt.Dimension(2147483647, 2147483647));
         table.setRowHeight(22);
         table.setSelectionBackground(new java.awt.Color(204, 204, 204));
@@ -293,7 +312,7 @@ JOptionPane.YES_NO_OPTION);
              nel=true;
          }
      
-     if(nel){
+     if(!nel){
            con=new Conexion();
         con.Conectar();        
      try{
@@ -316,6 +335,9 @@ if(obj.Trash==1){
 }
             model.addRow(new Object[]{obj.Id,obj.Type,obj.Out,obj.In,obj.Qty,factura});
         }
+      
+         JOptionPane.showMessageDialog(this,"Movimiento eliminado con éxito.","Registro eliminado",JOptionPane.INFORMATION_MESSAGE);
+   
      }else{
       JOptionPane.showMessageDialog(this,"No hay suficientes productos para realizar esta acción.","Error de guardado",JOptionPane.ERROR_MESSAGE);
      }
@@ -347,6 +369,36 @@ if(obj.Trash==1){
             j.exportarExcel(table);}
         catch(IOException e){}
     }//GEN-LAST:event_jMenuItem3ActionPerformed
+
+    private void btnAgregarPagoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarPagoActionPerformed
+ AddRegMovimientosDet form = new AddRegMovimientosDet();
+        form.setModal(true);
+        form.setVisible(true);
+         model=(DefaultTableModel)table.getModel(); 
+    int count= model.getRowCount();
+         for(int i=0;i<count;i++)
+        {
+           model.removeRow(0);   
+        }      
+               con=new Conexion();
+        model=(DefaultTableModel)table.getModel();
+        con.Conectar();        
+     try{
+         request=con.GetInventoryMovesByRegId(Save.Reg);
+     
+      } catch (SQLException ex) {
+                 }
+     con.Desconectar();
+        for(Inventory_Moves obj: request)
+        {
+     
+            boolean factura=false;
+if(obj.Trash==1){
+    factura=true;
+}
+            model.addRow(new Object[]{obj.Id,obj.Type,obj.Out,obj.In,obj.Qty,factura});
+        }
+    }//GEN-LAST:event_btnAgregarPagoActionPerformed
 
     /**
      * @param args the command line arguments
@@ -385,6 +437,7 @@ if(obj.Trash==1){
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPopupMenu SubMenu;
+    private javax.swing.JButton btnAgregarPago;
     private javax.swing.JMenuItem btnEliminar;
     private javax.swing.JComboBox<String> cbxFiltro;
     private javax.swing.JLabel jLabel3;

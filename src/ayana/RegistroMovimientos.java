@@ -188,6 +188,7 @@ public class RegistroMovimientos extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        tableEgresos.setGridColor(new java.awt.Color(153, 153, 153));
         tableEgresos.setRowHeight(22);
         tableEgresos.setSelectionBackground(new java.awt.Color(204, 204, 204));
         tableEgresos.setSelectionForeground(new java.awt.Color(0, 0, 0));

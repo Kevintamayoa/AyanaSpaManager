@@ -42,8 +42,15 @@ public class Inventory_Moves {
         this.Trash = Trash;
         this.Reg_Id = Reg_Id;
     }
-
-   
+    public Inventory_Moves(int Out_Id, int In_Id, int Type_Id, int Qty,int req ,int Trash) {
+        this.Out_Id = Out_Id;
+        this.In_Id = In_Id;
+        this.Type_Id = Type_Id;
+        this.Qty = Qty;
+        this.Reg_Id=req;
+        this.Trash = Trash;
+      
+    }
 public int TotalStock;
     public int PuntoVentaStock;
     public int CabinaStock;

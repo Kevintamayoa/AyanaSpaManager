@@ -7,6 +7,7 @@ package ayana;
 
 import Adicional.ExportExc;
 import Classes.Inventory;
+import Classes.Inventory_Moves;
 import Classes.Request;
 import Classes.Save;
 import Conexion.Conexion;
@@ -97,6 +98,7 @@ List<Inventory> inventory;
         txtBusqueda = new javax.swing.JTextPane();
         txtBuscar = new javax.swing.JLabel();
         jCheckBox1 = new javax.swing.JCheckBox();
+        btnAgregarPago = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
@@ -159,6 +161,19 @@ List<Inventory> inventory;
             }
         });
 
+        btnAgregarPago.setBackground(new java.awt.Color(217, 234, 220));
+        btnAgregarPago.setFont(new java.awt.Font("InaiMathi", 0, 12)); // NOI18N
+        btnAgregarPago.setForeground(new java.awt.Color(51, 51, 51));
+        btnAgregarPago.setText("Agregar producto");
+        btnAgregarPago.setToolTipText("");
+        btnAgregarPago.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(145, 146, 147)));
+        btnAgregarPago.setFocusTraversalPolicyProvider(true);
+        btnAgregarPago.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAgregarPagoActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -173,6 +188,8 @@ List<Inventory> inventory;
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(cbxFiltro, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnAgregarPago, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(49, 49, 49)
                 .addComponent(jCheckBox1)
                 .addContainerGap())
         );
@@ -186,7 +203,8 @@ List<Inventory> inventory;
                             .addComponent(jCheckBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(cbxFiltro, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(txtBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnAgregarPago, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.CENTER, jPanel3Layout.createSequentialGroup()
                         .addComponent(jScrollPane3)
@@ -227,6 +245,7 @@ List<Inventory> inventory;
             }
         });
         table.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
+        table.setGridColor(new java.awt.Color(153, 153, 153));
         table.setMinimumSize(new java.awt.Dimension(2147483647, 2147483647));
         table.setRowHeight(22);
         table.setSelectionBackground(new java.awt.Color(204, 204, 204));
@@ -247,7 +266,7 @@ List<Inventory> inventory;
                 .addContainerGap()
                 .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
-            .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, 725, Short.MAX_VALUE)
+            .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, 899, Short.MAX_VALUE)
             .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel2Layout.createSequentialGroup()
                     .addContainerGap()
@@ -458,6 +477,31 @@ JOptionPane.YES_NO_OPTION);
         catch(IOException e){}
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
+    private void btnAgregarPagoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarPagoActionPerformed
+        AddRegInventario2 form = new AddRegInventario2();
+        form.setModal(true);
+        form.setVisible(true);
+         model=(DefaultTableModel)table.getModel(); 
+    int count= model.getRowCount();
+         for(int i=0;i<count;i++)
+        {
+           model.removeRow(0);   
+        }      
+               con=new Conexion();
+        model=(DefaultTableModel)table.getModel();
+        con.Conectar();        
+     try{
+        inventory=con.GetInventoryByRequest(Save.Request);
+     
+      } catch (SQLException ex) {
+                 }
+     con.Desconectar();
+       for(Inventory obj: inventory)
+        {
+            model.addRow(new Object[]{obj.Id,obj.Cat,obj.Type,obj.Qty,obj.Cost,obj.CostUnit(),obj.Sta()});
+        }
+    }//GEN-LAST:event_btnAgregarPagoActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -495,6 +539,7 @@ JOptionPane.YES_NO_OPTION);
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPopupMenu SubMenu;
+    private javax.swing.JButton btnAgregarPago;
     private javax.swing.JMenuItem btnEliminar;
     private javax.swing.JMenuItem btnRecibir;
     private javax.swing.JComboBox<String> cbxFiltro;

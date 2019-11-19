@@ -245,6 +245,7 @@ Client client;
             }
         });
         tableVentas.setColumnSelectionAllowed(true);
+        tableVentas.setGridColor(new java.awt.Color(153, 153, 153));
         tableVentas.setRowHeight(22);
         tableVentas.setSelectionBackground(new java.awt.Color(204, 204, 204));
         tableVentas.setSelectionForeground(new java.awt.Color(0, 0, 0));

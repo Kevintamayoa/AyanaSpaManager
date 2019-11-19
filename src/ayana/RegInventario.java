@@ -46,7 +46,9 @@ public class RegInventario extends javax.swing.JFrame {
          DefaultTableCellRenderer tcr = new DefaultTableCellRenderer();
         table.getColumnModel().getColumn(0).setCellRenderer(tcr);
          table.getColumnModel().getColumn(2).setCellRenderer(tcr);
-        table.getColumnModel().getColumn(3).setCellRenderer(new CurrencyCellRenderer());
+             table.getColumnModel().getColumn(3).setCellRenderer(tcr);
+        table.getColumnModel().getColumn(4).setCellRenderer(new CurrencyCellRenderer());
+       
         table.getColumnModel().getColumn(1).setCellRenderer(new TimestampCellRenderer());
         ImageIcon imagen1 = new ImageIcon(getClass().getResource("Images/Eliminar.png"));
         Icon fondo1 = new ImageIcon(imagen1.getImage().getScaledInstance(25, 25, Image.SCALE_SMOOTH));
@@ -60,6 +62,9 @@ public class RegInventario extends javax.swing.JFrame {
          imagen2 = new ImageIcon(getClass().getResource("Images/Info.png"));
        fondo2 = new ImageIcon(imagen2.getImage().getScaledInstance(25, 25, Image.SCALE_SMOOTH));
         btnDetalle.setIcon(fondo2);
+          imagen2 = new ImageIcon(getClass().getResource("Images/Editar.png"));
+       fondo2 = new ImageIcon(imagen2.getImage().getScaledInstance(25, 25, Image.SCALE_SMOOTH));
+        btnDetalle1.setIcon(fondo2);
          model=(DefaultTableModel)table.getModel();
         con=new Conexion();
        
@@ -76,15 +81,16 @@ public class RegInventario extends javax.swing.JFrame {
         for(Request obj: request)
         {
 
-            model.addRow(new Object[]{obj.Id,obj.Date,obj.Provider,obj.Monto,obj.Pagado(),obj.Recibido()});
+            model.addRow(new Object[]{obj.Id,obj.Date,obj.Provider,obj.Comentario,obj.Monto,obj.Pagado(),obj.Recibido()});
         }
               trs=new TableRowSorter(model);
         table.setRowSorter(trs);
     }
-  private DefaultTableModel model;
-Conexion con;
-List<Request> request;
-TableRowSorter trs;
+    private DefaultTableModel model;
+    Conexion con;
+    List<Request> request;
+    TableRowSorter trs;
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -96,6 +102,7 @@ TableRowSorter trs;
 
         SubMenu = new javax.swing.JPopupMenu();
         btnDetalle = new javax.swing.JMenuItem();
+        btnDetalle1 = new javax.swing.JMenuItem();
         btnPagar = new javax.swing.JMenuItem();
         btnEliminar = new javax.swing.JMenuItem();
         jPanel2 = new javax.swing.JPanel();
@@ -119,6 +126,14 @@ TableRowSorter trs;
             }
         });
         SubMenu.add(btnDetalle);
+
+        btnDetalle1.setText("Editar comentario");
+        btnDetalle1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDetalle1ActionPerformed(evt);
+            }
+        });
+        SubMenu.add(btnDetalle1);
 
         btnPagar.setText("Pagar pedido");
         btnPagar.addActionListener(new java.awt.event.ActionListener() {
@@ -152,7 +167,7 @@ TableRowSorter trs;
         cbxFiltro.setBackground(new java.awt.Color(255, 248, 245));
         cbxFiltro.setFont(new java.awt.Font("InaiMathi", 0, 14)); // NOI18N
         cbxFiltro.setForeground(new java.awt.Color(51, 51, 51));
-        cbxFiltro.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Id inventario", "Fecha", "Proveedor", "Monto", " " }));
+        cbxFiltro.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Id inventario", "Fecha", "Proveedor", "Comentario", "Monto", " " }));
 
         jLabel3.setFont(new java.awt.Font("InaiMathi", 0, 14)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(51, 51, 51));
@@ -208,19 +223,20 @@ TableRowSorter trs;
 
         table.setBackground(new java.awt.Color(255, 248, 245));
         table.setFont(new java.awt.Font("InaiMathi", 0, 18)); // NOI18N
+        table.setForeground(new java.awt.Color(51, 51, 51));
         table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Id inventario", "Fecha", "Proveedor", "Monto", "Pagado", "Recibido"
+                "Id inventario", "Fecha", "Proveedor", "Comentario", "Monto", "Pagado", "Recibido"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.Object.class, java.lang.Object.class, java.lang.Double.class, java.lang.Boolean.class, java.lang.Boolean.class
+                java.lang.Integer.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Double.class, java.lang.Boolean.class, java.lang.Boolean.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false
+                false, false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -232,7 +248,7 @@ TableRowSorter trs;
             }
         });
         table.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
-        table.setGridColor(new java.awt.Color(255, 255, 255));
+        table.setGridColor(new java.awt.Color(153, 153, 153));
         table.setMinimumSize(new java.awt.Dimension(2147483647, 2147483647));
         table.setRowHeight(22);
         table.setSelectionBackground(new java.awt.Color(204, 204, 204));
@@ -312,51 +328,129 @@ TableRowSorter trs;
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-  
+
     private void tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableMouseClicked
-         
+
     }//GEN-LAST:event_tableMouseClicked
 
     private void btnPagarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPagarActionPerformed
-         try{
-        Save.Request=Integer.parseInt(table.getValueAt(table.getSelectedRow(), 0).toString());
-        Save.Providertext=table.getValueAt(table.getSelectedRow(), 2).toString();
-         con=new Conexion();
-        con.Conectar();  
-     try{
-       Save.Provider= con.GetProviderByRequestId(Save.Request).Id;
-    
-      } catch (SQLException ex) {
-    
-                 }      con.Desconectar();
-                 
-        if(!Boolean.parseBoolean(table.getValueAt(table.getSelectedRow(), 4).toString())){
-               int n = JOptionPane.showConfirmDialog(this,
-"¿Desea marcar este pedido cómo pagado? ","",
-JOptionPane.YES_NO_OPTION);
-   if(n==JOptionPane.YES_OPTION){
-       int m = JOptionPane.showConfirmDialog(this,
-    "¿Desea agregar pago a este proveedor? ","",
-JOptionPane.YES_NO_OPTION);
-   if(m==JOptionPane.YES_OPTION){
-       AuxPagos form=new AuxPagos();
-       form.setModal(true);
-       form.setVisible(true);
-   }  
-            con=new Conexion();
-        con.Conectar();  
-     try{
-        con.UpdateRequestPagado(Save.Request);
-    
-      } catch (SQLException ex) {
-    
-                 }      con.Desconectar();
-    table.setValueAt(true,table.getSelectedRow(), 4);
-        JOptionPane.showMessageDialog(this,"Cambio realizado con éxito.");
- }
-        
-   }
-        }catch(Exception e){}   
+        try {
+            Save.Request = Integer.parseInt(table.getValueAt(table.getSelectedRow(), 0).toString());
+            Save.Providertext = table.getValueAt(table.getSelectedRow(), 2).toString();
+            // Request req;
+
+            con = new Conexion();
+            con.Conectar();
+            try {
+                Save.Provider = con.GetProviderByRequestId(Save.Request).Id;
+                //req=con.GetRequestById(Save.Request);
+
+            } catch (SQLException ex) {
+
+            }
+            con.Desconectar();
+
+            if (!Boolean.parseBoolean(table.getValueAt(table.getSelectedRow(), 5).toString())) {
+                boolean simon = false;
+                boolean simon2 = false;
+                int m = JOptionPane.showConfirmDialog(this,
+                        "¿Desea agregar pago a este proveedor? ", "",
+                        JOptionPane.YES_NO_OPTION);
+                if (m == JOptionPane.YES_OPTION) {
+                    AuxPagos form = new AuxPagos();
+                    form.setModal(true);
+                    form.setVisible(true);
+                    simon = true;
+                }
+                int n = JOptionPane.showConfirmDialog(this,
+                        "¿Desea marcar este pedido cómo pagado? ", "",
+                        JOptionPane.YES_NO_OPTION);
+                if (n == JOptionPane.YES_OPTION) {
+                    simon2 = true;
+                    con = new Conexion();
+                    con.Conectar();
+                    try {
+                        con.UpdateRequestPagado(Save.Request);
+                    } catch (SQLException ex) {
+                    }
+                }
+
+                if (simon ||simon2) {
+                    if (!simon2) {
+                        con = new Conexion();
+                        con.Conectar();
+                    }
+                }
+                try {
+                    if (Save.status2 == 1) {
+                        request = con.GetRequestByProvider(Save.Provider);
+                    } else {
+                        request = con.GetRequest();
+                    }
+                } catch (SQLException ex) {
+                }
+                con.Desconectar();
+                int count = model.getRowCount();
+                for (int i = 0; i < count; i++) {
+                    model.removeRow(0);
+                }
+
+                for (Request obj : request) {
+                    model.addRow(new Object[]{obj.Id, obj.Date, obj.Provider, obj.Comentario, obj.Monto, obj.Pagado(), obj.Recibido()});
+                }
+                JOptionPane.showMessageDialog(this, "Cambio realizado con éxito.");
+
+            } else {
+                boolean simon = false;
+                boolean simon2 = false;
+                int m = JOptionPane.showConfirmDialog(this,
+                        "¿Desea agregar pago a este proveedor? ", "",
+                        JOptionPane.YES_NO_OPTION);
+                if (m == JOptionPane.YES_OPTION) {
+                    AuxPagos form = new AuxPagos();
+                    form.setModal(true);
+                    form.setVisible(true);
+                    simon = true;
+                }
+                if (!simon) {
+                    int n = JOptionPane.showConfirmDialog(this,
+                            "¿Desea remover la marca de este pedido cómo pagado? ", "",
+                            JOptionPane.YES_NO_OPTION);
+                    if (n == JOptionPane.YES_OPTION) {
+                        simon2 = true;
+                        con = new Conexion();
+                        con.Conectar();
+                        try {
+                            con.DowndateRequestPagado(Save.Request);
+                        } catch (SQLException ex) {}
+                    }
+                }
+                if (simon || simon2) {
+                    if(!simon2){
+                        con = new Conexion();
+                        con.Conectar();}
+                        try {
+                            if (Save.status2 == 1) {
+                                request = con.GetRequestByProvider(Save.Provider);
+                            } else {
+                                request = con.GetRequest();
+                            }
+                        } catch (SQLException ex) {}
+                        con.Desconectar();
+                    int count = model.getRowCount();
+                    for (int i = 0; i < count; i++) {
+                        model.removeRow(0);
+                    }
+
+                    for (Request obj : request) {
+                        model.addRow(new Object[]{obj.Id, obj.Date, obj.Provider, obj.Comentario, obj.Monto, obj.Pagado(), obj.Recibido()});
+                    }
+                      JOptionPane.showMessageDialog(this, "Cambio realizado con éxito.");
+                  
+                }
+            }
+        } catch (Exception e) {
+        }
     }//GEN-LAST:event_btnPagarActionPerformed
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
@@ -385,7 +479,7 @@ JOptionPane.YES_NO_OPTION);
                
         for(Request obj: request)
         {
-            model.addRow(new Object[]{obj.Id,obj.Date,obj.Provider,obj.Monto,obj.Pagado(),obj.Recibido()});
+            model.addRow(new Object[]{obj.Id,obj.Date,obj.Provider,obj.Comentario,obj.Monto,obj.Pagado(),obj.Recibido()});
         }
    }}catch(Exception e){}
     }//GEN-LAST:event_btnEliminarActionPerformed
@@ -417,7 +511,14 @@ JOptionPane.YES_NO_OPTION);
 
      try{
         Save.Request=Integer.parseInt(table.getValueAt(table.getSelectedRow(), 0).toString());
-        RegInventarioDet form=new RegInventarioDet();
+         con=new Conexion();
+        con.Conectar();  
+     try{
+           Save.Provider= con.GetProviderByRequestId(Save.Request).Id;
+     
+      } catch (SQLException ex) {}
+          con.Desconectar();
+         RegInventarioDet form=new RegInventarioDet();
          form.setBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
       
         form.setModal(true);
@@ -443,7 +544,7 @@ JOptionPane.YES_NO_OPTION);
        for(Request obj: request)
         {
 
-            model.addRow(new Object[]{obj.Id,obj.Date,obj.Provider,obj.Monto,obj.Pagado(),obj.Recibido()});
+            model.addRow(new Object[]{obj.Id,obj.Date,obj.Provider,obj.Comentario,obj.Monto,obj.Pagado(),obj.Recibido()});
         }
        }catch(Exception e){}    
     }//GEN-LAST:event_btnDetalleActionPerformed
@@ -454,6 +555,41 @@ JOptionPane.YES_NO_OPTION);
             j.exportarExcel(table);}
         catch(IOException e){}
     }//GEN-LAST:event_jMenuItem3ActionPerformed
+
+    private void btnDetalle1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDetalle1ActionPerformed
+   try{
+        int idd=Integer.parseInt(table.getValueAt(table.getSelectedRow(), 0).toString());
+        String name = JOptionPane.showInputDialog(this, "Escriba el nuevo detalle de este pedido:");
+if(name!=null){
+     con=new Conexion();
+        con.Conectar();  
+     try{
+         con.UpdateComentarioRequest( idd, name);
+     if(Save.status2 ==1){
+         request=con.GetRequestByProvider(Save.Provider);
+     }else{
+          request=con.GetRequest();
+     }
+       } catch (SQLException ex) {}
+          con.Desconectar();
+       JOptionPane.showMessageDialog(this,"Cambio realizado con éxito."); 
+      
+    table.setValueAt(name,table.getSelectedRow(), 3);
+//         
+//          int count= model.getRowCount();
+//                for(int i=0;i<count;i++)
+//                {
+//                    model.removeRow(0);
+//                }
+//       for(Request obj: request)
+//        {
+//
+//            model.addRow(new Object[]{obj.Id,obj.Date,obj.Provider,obj.Comentario,obj.Monto,obj.Pagado(),obj.Recibido()});
+//        }
+//    
+}}catch(Exception e){}
+
+    }//GEN-LAST:event_btnDetalle1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -493,6 +629,7 @@ JOptionPane.YES_NO_OPTION);
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPopupMenu SubMenu;
     private javax.swing.JMenuItem btnDetalle;
+    private javax.swing.JMenuItem btnDetalle1;
     private javax.swing.JMenuItem btnEliminar;
     private javax.swing.JMenuItem btnPagar;
     private javax.swing.JComboBox<String> cbxFiltro;

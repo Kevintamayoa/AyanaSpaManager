@@ -6,9 +6,9 @@
 package ayana;
 
 import Adicional.ExportExc;
-import Classes.Expense;
 import Classes.Inventory_Type;
 import Classes.Save;
+import Classes.Service_Type;
 import Conexion.Conexion;
 import java.awt.Color;
 import java.awt.Font;
@@ -17,12 +17,10 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.text.DecimalFormat;
 import java.util.List;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.RowFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -32,14 +30,14 @@ import javax.swing.table.TableRowSorter;
  *
  * @author macbook
  */
-public class Inventarios extends javax.swing.JFrame {
+public class ServiciosForm extends javax.swing.JFrame {
 
     /**
-     * Creates new form Inventarios
+     * Creates new form ServiciosForm
      */
-    public Inventarios() {
+    public ServiciosForm() {
         initComponents();
-       this.setIconImage (new ImageIcon(this.getClass().getResource("Images/Screenshot_1.png")).getImage());
+          this.setIconImage (new ImageIcon(this.getClass().getResource("Images/Screenshot_1.png")).getImage());
          ImageIcon imagen = new ImageIcon(getClass().getResource("Images/Editar.png"));
         Icon fondo = new ImageIcon(imagen.getImage().getScaledInstance(25, 25, Image.SCALE_SMOOTH));
         btnPagar.setIcon(fondo);
@@ -51,36 +49,26 @@ public class Inventarios extends javax.swing.JFrame {
         txtBuscar.setIcon(fondo4);
         table.getColumnModel().getColumn(3).setCellRenderer(new CurrencyCellRenderer());
         table.getColumnModel().getColumn(4).setCellRenderer(new CurrencyCellRenderer());
+             table.getColumnModel().getColumn(5).setCellRenderer(new CurrencyCellRenderer());
          DefaultTableCellRenderer tcr = new DefaultTableCellRenderer();
            table.getColumnModel().getColumn(0).setCellRenderer(tcr);
-      
-         tcr.setHorizontalAlignment(JLabel.CENTER);
-          table.getColumnModel().getColumn(5).setCellRenderer(tcr);
-            table.getColumnModel().getColumn(6).setCellRenderer(tcr);
-              table.getColumnModel().getColumn(7).setCellRenderer(tcr);
-                table.getColumnModel().getColumn(8).setCellRenderer(tcr);
-        con=new Conexion();
+         con=new Conexion();
         model=(DefaultTableModel)table.getModel();
         con.Conectar();        
      try{
-         expenses=con.GetInventoryTypes2();
+         expenses=con.GetServiceType();
     
       } catch (SQLException ex) {
                  }
      con.Desconectar();
-        for(Inventory_Type obj: expenses)
-        {
+       for(Service_Type obj: expenses)
+            {
 
- int as=obj.TotalStock-obj.PuntoVentaStock-obj.CabinaStock;
-            model.addRow(new Object[]{obj.Id,obj.Category,obj.Description,obj.Cost,obj.Price,
-           as,obj.PuntoVentaStock,obj.CabinaStock,obj.Reb});
-        }
+                model.addRow(new Object[]{obj.Id,obj.Category(),obj.Description,obj.Cost,obj.Price,
+                   obj.Cost1});}
               trs=new TableRowSorter(model);
         table.setRowSorter(trs);
     }
-  private DefaultTableModel model;
-    public List<Inventory_Type> expenses; 
-     Conexion con;
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -117,8 +105,6 @@ public class Inventarios extends javax.swing.JFrame {
         SubMenu.add(btnPagar);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Inventarios");
-        setBackground(new java.awt.Color(255, 255, 255));
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 formWindowClosing(evt);
@@ -132,7 +118,7 @@ public class Inventarios extends javax.swing.JFrame {
         cbxFiltro.setBackground(new java.awt.Color(255, 248, 245));
         cbxFiltro.setFont(new java.awt.Font("InaiMathi", 0, 14)); // NOI18N
         cbxFiltro.setForeground(new java.awt.Color(51, 51, 51));
-        cbxFiltro.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Id de inventario", "Categoría", "Producto", "Costo proveedor", "Precio unitario", "Distribuidora stock", "Cabina stock", "Punto de venta stock", "En pedidos" }));
+        cbxFiltro.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Id de servicio", "Categoría", "Servicio", "Costo", "Precio individual", "Precio en paquete" }));
 
         jLabel3.setFont(new java.awt.Font("InaiMathi", 0, 14)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(51, 51, 51));
@@ -155,7 +141,7 @@ public class Inventarios extends javax.swing.JFrame {
         btnNuevoCliente.setBackground(new java.awt.Color(217, 234, 220));
         btnNuevoCliente.setFont(new java.awt.Font("InaiMathi", 0, 14)); // NOI18N
         btnNuevoCliente.setForeground(new java.awt.Color(51, 51, 51));
-        btnNuevoCliente.setText("Agregar nuevo producto");
+        btnNuevoCliente.setText("Agregar nuevo servicio");
         btnNuevoCliente.setToolTipText("");
         btnNuevoCliente.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(145, 146, 147)));
         btnNuevoCliente.setFocusTraversalPolicyProvider(true);
@@ -178,7 +164,7 @@ public class Inventarios extends javax.swing.JFrame {
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(cbxFiltro, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 109, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 129, Short.MAX_VALUE)
                 .addComponent(btnNuevoCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -199,7 +185,7 @@ public class Inventarios extends javax.swing.JFrame {
         jLabel5.setFont(new java.awt.Font("InaiMathi", 1, 20)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(0, 0, 0));
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel5.setText("Inventarios");
+        jLabel5.setText("Servicios");
         jLabel5.setToolTipText("");
 
         table.setBackground(new java.awt.Color(255, 248, 245));
@@ -211,14 +197,14 @@ public class Inventarios extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Id de inventario", "Categoría", "Producto", "Costo proveedor", "Precio unitario", "Distribuidora stock", "Punto de venta stock", "Cabina stock", "En pedidos"
+                "Id de servicio", "Categoría", "Servicio", "Costo", "Precio individual", "Precio en paquete"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.Object.class, java.lang.Object.class, java.lang.Double.class, java.lang.Double.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class
+                java.lang.Integer.class, java.lang.Object.class, java.lang.Object.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false
+                false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -247,9 +233,6 @@ public class Inventarios extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(table);
         table.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-        if (table.getColumnModel().getColumnCount() > 0) {
-            table.getColumnModel().getColumn(6).setResizable(false);
-        }
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -270,7 +253,7 @@ public class Inventarios extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 372, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -309,37 +292,17 @@ public class Inventarios extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-TableRowSorter trs;
- 
-    private void btnPagarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPagarActionPerformed
+
+    private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
+        ExportExc j=new ExportExc();
         try{
-Save.status2=1;
-Save.Product=Integer.parseInt(table.getValueAt(table.getSelectedRow(), 0).toString());
-AddProduct form=new AddProduct();
-form.setModal(true);
-form.setVisible(true);
-   int j=model.getRowCount();
-        for(int i=0;i<j;i++){
-            model.removeRow(j-i-1);
-        }
-        con=new Conexion();
-        con.Conectar();        
-     try{
-         expenses=con.GetInventoryTypes2();
-    
-      } catch (SQLException ex) {
-                 }
-     con.Desconectar();
-        for(Inventory_Type obj: expenses)
-        {
-
- int as=obj.TotalStock-obj.PuntoVentaStock-obj.CabinaStock;
-            model.addRow(new Object[]{obj.Id,obj.Category,obj.Description,obj.Cost,obj.Price,
-           as,obj.PuntoVentaStock,obj.CabinaStock,obj.Reb});
-        }
-            }catch(Exception e){}
-    }//GEN-LAST:event_btnPagarActionPerformed
-
+            j.exportarExcel(table);}
+        catch(IOException e){}
+    }//GEN-LAST:event_jMenuItem6ActionPerformed
+TableRowSorter trs;
+  private DefaultTableModel model;
+    public List<Service_Type> expenses; 
+     Conexion con;
     private void txtBusquedaKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtBusquedaKeyTyped
         txtBusqueda.addKeyListener(new KeyAdapter(){
             @Override
@@ -352,53 +315,72 @@ form.setVisible(true);
         table.setRowSorter(trs);
     }//GEN-LAST:event_txtBusquedaKeyTyped
 
-    private void tableMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableMouseReleased
-           
-   if (evt.getClickCount() == 2 && !evt.isConsumed()) {
-        evt.consume();
-           SubMenu.show(table, evt.getX(), evt.getY());
-           }
-              
-    }//GEN-LAST:event_tableMouseReleased
-
-    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-      Interfaz.InventariosBool=false;
-    }//GEN-LAST:event_formWindowClosing
-
     private void btnNuevoClienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoClienteActionPerformed
-                try{
-Save.status2=0;
-AddProduct form=new AddProduct();
-form.setModal(true);
-form.setVisible(true);
-        int j=model.getRowCount();
-        for(int i=0;i<j;i++){
-            model.removeRow(j-i-1);
-        }
-        con=new Conexion();
-        con.Conectar();        
-     try{
-         expenses=con.GetInventoryTypes2();
-    
-      } catch (SQLException ex) {
-                 }
-     con.Desconectar();
-        for(Inventory_Type obj: expenses)
-        {
+        try{
+            Save.status2=0;
+            AddService form=new AddService();
+            form.setModal(true);
+            form.setVisible(true);
+            int j=model.getRowCount();
+            for(int i=0;i<j;i++){
+                model.removeRow(j-i-1);
+            }
+            con=new Conexion();
+            con.Conectar();
+            try{
+                expenses=con.GetServiceType();
 
- int as=obj.TotalStock-obj.PuntoVentaStock-obj.CabinaStock;
-            model.addRow(new Object[]{obj.Id,obj.Category,obj.Description,obj.Cost,obj.Price,
-           as,obj.PuntoVentaStock,obj.CabinaStock,obj.Reb});
+            } catch (SQLException ex) {
+            }
+            con.Desconectar();
+            for(Service_Type obj: expenses)
+            {
+
+                model.addRow(new Object[]{obj.Id,obj.Category(),obj.Description,obj.Cost,obj.Price,
+                   obj.Cost1});
         }}catch(Exception e){}
     }//GEN-LAST:event_btnNuevoClienteActionPerformed
 
-    private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
-        ExportExc j=new ExportExc();
-        try{
-            j.exportarExcel(table);}
-        catch(IOException e){}
-    }//GEN-LAST:event_jMenuItem6ActionPerformed
+    private void tableMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableMouseReleased
 
+        if (evt.getClickCount() == 2 && !evt.isConsumed()) {
+            evt.consume();
+            SubMenu.show(table, evt.getX(), evt.getY());
+        }
+
+    }//GEN-LAST:event_tableMouseReleased
+
+    private void btnPagarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPagarActionPerformed
+        try{
+            Save.status2=1;
+            Save.Service=Integer.parseInt(table.getValueAt(table.getSelectedRow(), 0).toString());
+            AddService form=new AddService();
+            form.setModal(true);
+            form.setVisible(true);
+            int j=model.getRowCount();
+            for(int i=0;i<j;i++){
+                model.removeRow(j-i-1);
+            }
+            con=new Conexion();
+            con.Conectar();
+                  try{
+                expenses=con.GetServiceType();
+
+            } catch (SQLException ex) {
+            }
+            con.Desconectar();
+            for(Service_Type obj: expenses)
+            {
+
+                model.addRow(new Object[]{obj.Id,obj.Category(),obj.Description,obj.Cost,obj.Price,
+                   obj.Cost1});}
+        }catch(Exception e){}
+    }//GEN-LAST:event_btnPagarActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+Interfaz.ServiciosBool=false;        // TODO add your handling code here:
+    }//GEN-LAST:event_formWindowClosing
+            
     /**
      * @param args the command line arguments
      */
@@ -416,20 +398,20 @@ form.setVisible(true);
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Inventarios.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ServiciosForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Inventarios.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ServiciosForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Inventarios.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ServiciosForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Inventarios.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ServiciosForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Inventarios().setVisible(true);
+                new ServiciosForm().setVisible(true);
             }
         });
     }

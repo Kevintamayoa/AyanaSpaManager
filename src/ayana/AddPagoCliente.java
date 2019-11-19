@@ -43,6 +43,7 @@ public class AddPagoCliente extends javax.swing.JDialog {
         btnCapturaEgresos.setIcon(fondo);
     txtProv.setText(Save.Providertext);
           con=new Conexion();
+          
         con.Conectar();
           try {
         accounts=con.GetAccounts();
@@ -145,7 +146,6 @@ double MontoEgr;
         txtFacturaEgresos.setFont(new java.awt.Font("InaiMathi", 0, 18)); // NOI18N
         txtFacturaEgresos.setForeground(new java.awt.Color(55, 55, 55));
         txtFacturaEgresos.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(51, 51, 51), 1, true));
-        txtFacturaEgresos.setEnabled(false);
         txtFacturaEgresos.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtFacturaEgresosActionPerformed(evt);

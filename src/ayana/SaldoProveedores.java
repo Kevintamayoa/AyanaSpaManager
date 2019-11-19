@@ -243,7 +243,7 @@ TableRowSorter trs;
         table.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         table.setFocusTraversalKeysEnabled(false);
         table.setFocusable(false);
-        table.setGridColor(new java.awt.Color(255, 255, 255));
+        table.setGridColor(new java.awt.Color(153, 153, 153));
         table.setRowHeight(22);
         table.setSelectionBackground(new java.awt.Color(204, 204, 204));
         table.setSelectionForeground(new java.awt.Color(0, 0, 0));
@@ -504,7 +504,7 @@ JOptionPane.YES_NO_OPTION);
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-  Interfaz.SaldoProveedoresBool=false;        // TODO add your handling code here:
+  Interfaz.SaldoProveedoresBool=false;       
     }//GEN-LAST:event_formWindowClosing
 
     /**

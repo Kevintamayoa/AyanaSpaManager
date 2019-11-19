@@ -6,6 +6,8 @@
 package ayana;
 
 
+import Adicional.AutoCompleteJComboBox;
+import Adicional.StringSearcheable;
 import Classes.ComboListener;
 import Classes.Save;
 import Classes.User;
@@ -37,16 +39,20 @@ public class login extends javax.swing.JFrame {
    con.Conectar();
    users=con.GetUsers();
    con.Desconectar();
+   
+      List<String> Words = new ArrayList<String>();
+   
    for(User obj :users){
         vector.add(obj.Name);  
-   }
+        Words.add(obj.Name);
+   }   
 cbxName.setModel(new DefaultComboBoxModel(vector));
-		
-JTextField text = (JTextField)cbxName.getEditor().getEditorComponent();
-		text.setFocusable(true);
-		text.setText("");
-		text.addKeyListener(new ComboListener(cbxName,vector));
+StringSearcheable searchable = new StringSearcheable(Words);
+AutoCompleteJComboBox combo = new AutoCompleteJComboBox(searchable,cbxName);
+
     }
+
+				
 Conexion con;
 List<User> users;
 

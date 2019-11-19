@@ -32,8 +32,7 @@ public class Ayana extends Application {
     @Override
     public void start(Stage primaryStage) {
         login obj=new login();
-        obj.setIconImage(new ImageIcon(getClass().getResource("Images/Screenshot_1.png")).getImage());
-        
+        obj.setIconImage(new ImageIcon(getClass().getResource("Images/Screenshot_1.png")).getImage());      
         obj.setVisible(true);
 //To change body of generated methods, choose Tools | Templates.
     }

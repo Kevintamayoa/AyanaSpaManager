@@ -110,7 +110,7 @@ public class Conexion {
                 + " C.in_id=A.id) END) -(CASE WHEN (SELECT COUNT(*) FROM moves_account C WHERE C.out_id =A.id)=0 "
                 + "THEN 0 ELSE (SELECT SUM(C.amount) FROM moves_account C WHERE C.out_id=A.id) END)) as inicial,"
                 + "B.description FROM account A INNER JOIN account_type B ON(B.id=A.type_id) "
-                + "WHERE A.id=1 order by A.description asc;";
+                + "WHERE A.id=1 OR A.id=2 order by A.description asc;";
         List<Account> list = new ArrayList<Account>();
   
             Statement st = con.createStatement();
@@ -200,7 +200,116 @@ public class Conexion {
     public List<Expense> GetExpenses() throws SQLException {
         String sql = "SELECT A.id,A.date,B.description,A.concept,C.description,A.bills,A.billsnumber,A.amount,D.name "
                 + "FROM expense A INNER JOIN expense_type B ON(A.type_id=B.id) INNER JOIN account C ON(A.account_id=C.id)"
-                + " INNER JOIN user D ON(A.user_id=D.id) ;";
+                + " INNER JOIN user D ON(A.user_id=D.id) ORDER BY A.date ASC ;";
+        List<Expense> list = new ArrayList<Expense>();
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            while (rs.next()) {
+                int Id = rs.getInt(1);
+                java.util.Date Date = rs.getDate(2);
+                String Type=rs.getString(3);
+                String Concept=rs.getString(4);
+                String Account=rs.getString(5);
+                int Bills=rs.getInt(6);
+                String BillsNumber=rs.getString(7);
+                double amount=rs.getDouble(8);
+                String user=rs.getString(9);
+                
+                    list.add(new Expense(Id, Date,Type,Concept,Account,Bills,BillsNumber,amount,user));
+            }
+        return list;
+    }   
+      public List<Flujo> GetFlujo() throws SQLException {
+        String sql = "SELECT MONTH(G1.date),(CASE WHEN (SELECT COUNT(*) FROM income D "
+                + "WHERE D.type_id=1 AND MONTH(D.date)=MONTH(G1.date))=0 THEN 0 ELSE  (SELECT SUM(D.amount) FROM income D "
+                + "WHERE D.type_id=1 AND MONTH(D.date)=MONTH(G1.date)) END) as montototal,SUM((CASE WHEN (SELECT COUNT(*) FROM sale_inventory D "
+                + "WHERE D.sale_id=G1.id AND D.inventory_id<>0)=0 THEN 0 ELSE  (SELECT SUM(D.amount) FROM sale_inventory"
+                + " D WHERE D.sale_id=G1.id AND D.inventory_id<>0) END)) AS products ,SUM((CASE WHEN (SELECT COUNT(*) "
+                + "FROM sale_inventory D WHERE D.sale_id=G1.id AND D.inventory_id=0)=0 THEN 0 ELSE  (SELECT SUM(D.amount)"
+                + " FROM sale_inventory D WHERE D.sale_id=G1.id AND D.inventory_id=0) END)) AS giftcard ,SUM((CASE WHEN "
+                + "(SELECT COUNT(*) FROM sale_service E INNER JOIN service_type F ON(E.service_id=F.id) WHERE E.sale_id=G1.id "
+                + "AND F.category_id=1)=0 THEN 0 ELSE  (SELECT SUM(E.amount) FROM sale_service E INNER JOIN service_type F "
+                + "ON(E.service_id=F.id) WHERE E.sale_id=G1.id AND F.category_id=1) END)) AS facial,SUM((CASE WHEN (SELECT "
+                + "COUNT(*) FROM sale_service E INNER JOIN service_type F ON(E.service_id=F.id) WHERE E.sale_id=G1.id AND "
+                + "F.category_id=2)=0 THEN 0 ELSE  (SELECT SUM(E.amount) FROM sale_service E INNER JOIN service_type F "
+                + "ON(E.service_id=F.id) WHERE E.sale_id=G1.id AND F.category_id=2) END)) AS BTL,SUM((CASE WHEN (SELECT COUNT(*) "
+                + "FROM sale_service E INNER JOIN service_type F ON(E.service_id=F.id) WHERE E.sale_id=G1.id AND F.category_id=3)=0"
+                + " THEN 0 ELSE  (SELECT SUM(E.amount) FROM sale_service E INNER JOIN service_type F ON(E.service_id=F.id) WHERE "
+                + "E.sale_id=G1.id AND F.category_id=3) END)) AS Masajes,SUM((CASE WHEN (SELECT COUNT(*) FROM sale_service E INNER "
+                + "JOIN service_type F ON(E.service_id=F.id) WHERE E.sale_id=G1.id AND F.category_id=4)=0 THEN 0 ELSE  (SELECT "
+                + "SUM(E.amount) FROM sale_service E INNER JOIN service_type F ON(E.service_id=F.id) WHERE E.sale_id=G1.id AND "
+                + "F.category_id=4) END)) AS Medico FROM (SELECT B.date,B.id,B.client_id FROM sale B) G1 WHERE YEAR(G1.date)=2019 "
+                + "GROUP BY MONTH(G1.date); ";
+        List<Flujo> list = new ArrayList<Flujo>();
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            while (rs.next()) {
+                int Id = rs.getInt(1);
+                double amount = rs.getDouble(2);
+                double product = rs.getDouble(3);
+                double gift = rs.getDouble(4);
+                double facial = rs.getDouble(5);
+                double btl = rs.getDouble(6);
+                double masajes = rs.getDouble(7);
+                double edico = rs.getDouble(8);
+                list.add(new Flujo(Id,amount,product,gift,facial,btl,masajes,edico));
+            }
+        return list;
+    }   
+        public List<Flujo> GetProductsCost() throws SQLException {
+        String sql = "SELECT mes, SUM(G1.monto) FROM (SELECT MONTH(D.date) AS mes,SUM(E.cost*C.qty) as monto  FROM inventory_moves C INNER JOIN inventory_reg D"
+                + " ON(C.reg_id=D.id) INNER JOIN inventory_type E ON(E.id=C.type_id) where C.in_id=0 GROUP BY MONTH(D.date) UNION SELECT MONTH(A.date) AS mes,"
+                + "SUM(B.amount) AS monto FROM sale A INNER JOIN sale_inventory B ON(A.id=B.sale_id) GROUP BY MONTH(A.date)) G1 GROUP BY G1.mes;";
+        List<Flujo> list = new ArrayList<Flujo>();
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            while (rs.next()) {
+                int Id = rs.getInt(1);
+                double amount = rs.getDouble(2);
+              
+                list.add(new Flujo(Id,amount));
+            }
+        return list;
+    }   
+              public List<Flujo> GetRentabilidad() throws SQLException {
+        String sql = "SELECT MONTH(G1.date),SUM(G1.monto),SUM((CASE WHEN (SELECT COUNT(*) FROM sale_inventory D "
+                + "WHERE D.sale_id=G1.id AND D.inventory_id<>0)=0 THEN 0 ELSE  (SELECT SUM(D.amount) FROM sale_inventory"
+                + " D WHERE D.sale_id=G1.id AND D.inventory_id<>0) END)) AS products ,SUM((CASE WHEN (SELECT COUNT(*) "
+                + "FROM sale_inventory D WHERE D.sale_id=G1.id AND D.inventory_id=0)=0 THEN 0 ELSE  (SELECT SUM(D.amount)"
+                + " FROM sale_inventory D WHERE D.sale_id=G1.id AND D.inventory_id=0) END)) AS giftcard ,SUM((CASE WHEN "
+                + "(SELECT COUNT(*) FROM sale_service E INNER JOIN service_type F ON(E.service_id=F.id) WHERE E.sale_id=G1.id "
+                + "AND F.category_id=1)=0 THEN 0 ELSE  (SELECT SUM(E.amount) FROM sale_service E INNER JOIN service_type F "
+                + "ON(E.service_id=F.id) WHERE E.sale_id=G1.id AND F.category_id=1) END)) AS facial,SUM((CASE WHEN (SELECT "
+                + "COUNT(*) FROM sale_service E INNER JOIN service_type F ON(E.service_id=F.id) WHERE E.sale_id=G1.id AND "
+                + "F.category_id=2)=0 THEN 0 ELSE  (SELECT SUM(E.amount) FROM sale_service E INNER JOIN service_type F "
+                + "ON(E.service_id=F.id) WHERE E.sale_id=G1.id AND F.category_id=2) END)) AS BTL,SUM((CASE WHEN (SELECT COUNT(*) "
+                + "FROM sale_service E INNER JOIN service_type F ON(E.service_id=F.id) WHERE E.sale_id=G1.id AND F.category_id=3)=0"
+                + " THEN 0 ELSE  (SELECT SUM(E.amount) FROM sale_service E INNER JOIN service_type F ON(E.service_id=F.id) WHERE "
+                + "E.sale_id=G1.id AND F.category_id=3) END)) AS Masajes,SUM((CASE WHEN (SELECT COUNT(*) FROM sale_service E INNER "
+                + "JOIN service_type F ON(E.service_id=F.id) WHERE E.sale_id=G1.id AND F.category_id=4)=0 THEN 0 ELSE  (SELECT "
+                + "SUM(E.amount) FROM sale_service E INNER JOIN service_type F ON(E.service_id=F.id) WHERE E.sale_id=G1.id AND "
+                + "F.category_id=4) END)) AS Medico FROM (SELECT B.date,B.id,B.monto FROM sale B ) G1 WHERE YEAR(G1.date)=2019 GROUP BY MONTH(G1.date); ";
+        List<Flujo> list = new ArrayList<Flujo>();
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            while (rs.next()) {
+                int Id = rs.getInt(1);
+                double amount = rs.getDouble(2);
+                double product = rs.getDouble(3);
+                double gift = rs.getDouble(4);
+                double facial = rs.getDouble(5);
+                double btl = rs.getDouble(6);
+                double masajes = rs.getDouble(7);
+                double edico = rs.getDouble(8);
+                list.add(new Flujo(Id,amount,product,gift,facial,btl,masajes,edico));
+            }
+        return list;
+    }   
+ 
+    public List<Expense> GetExpensesByMonthYear(int month,int year,int account) throws SQLException {
+        String sql = "SELECT A.id,A.date,B.description,A.concept,C.description,A.bills,A.billsnumber,A.amount,D.name "
+                + "FROM expense A INNER JOIN expense_type B ON(A.type_id=B.id) INNER JOIN account C ON(A.account_id=C.id)"
+                + " INNER JOIN user D ON(A.user_id=D.id) WHERE A.account_id="+account+" AND MONTH(A.date)="+month+" AND YEAR(A.date)="+year+" ORDER BY A.date ASC;";
         List<Expense> list = new ArrayList<Expense>();
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery(sql);
@@ -237,7 +346,31 @@ public class Conexion {
     public List<Income> GetIncomes() throws SQLException {
         String sql = "SELECT A.id,A.date,E.description,B.description,A.concept,C.description,A.bills,A.billsnumber,A.amount,D.name "
                 + "FROM income A INNER JOIN income_type B ON(A.type_id=B.id) INNER JOIN account C ON(A.account_id=C.id)"
-                + " INNER JOIN user D ON(A.user_id=D.id) INNER JOIN client E ON(A.client_id=E.id);";
+                + " INNER JOIN user D ON(A.user_id=D.id) INNER JOIN client E ON(A.client_id=E.id) ORDER BY A.date ASC;";
+        List<Income> list = new ArrayList<Income>();
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            while (rs.next()) {
+                int Id = rs.getInt(1);
+                java.util.Date Date = rs.getDate(2);
+                 String client=rs.getString(3);
+                String Type=rs.getString(4);
+                String Concept=rs.getString(5);
+                String Account=rs.getString(6);
+                int Bills=rs.getInt(7);
+                String BillsNumber=rs.getString(8);
+                double amount=rs.getDouble(9);
+                String user=rs.getString(10);
+                
+                    list.add(new Income(Id, Date,client,Type,Concept,Account,Bills,BillsNumber,amount,user));
+            }
+        return list;
+    }
+    public List<Income> GetIncomesByMonthYear(int month,int year,int account) throws SQLException {
+        String sql = "SELECT A.id,A.date,E.description,B.description,A.concept,C.description,A.bills,A.billsnumber,A.amount,D.name "
+                + "FROM income A INNER JOIN income_type B ON(A.type_id=B.id) INNER JOIN account C ON(A.account_id=C.id)"
+                + " INNER JOIN user D ON(A.user_id=D.id) INNER JOIN client E ON(A.client_id=E.id) WHERE A.account_id="+account+""
+                + " AND MONTH(A.date)="+month+" AND YEAR(A.date)="+year+" ORDER BY A.date ASC;";
         List<Income> list = new ArrayList<Income>();
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery(sql);
@@ -299,7 +432,54 @@ public class Conexion {
             }
         return list;
     }
-    public List<Income_Type> GetIncomeTypes() throws SQLException {
+     public List<Moves_Account> GetMovesCajasByMonthYear(int month,int year,int account) throws SQLException {
+        String sql = "SELECT A.id,A.date,A.out_id,A.in_id,A.amount,A.description,D.name"
+                + " FROM moves_account A INNER JOIN account B ON(A.out_id=B.id) INNER JOIN account C ON(A.in_id=C.id) "
+                + "INNER JOIN user D ON(A.user_id=D.id) WHERE (A.out_id="+account+" OR A.in_id="+account+") AND "
+                + "MONTH(A.date)="+month+" AND YEAR(A.date)="+year+" order by A.date ASC ;";
+        List<Moves_Account> list = new ArrayList<Moves_Account>();
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            while (rs.next()) {
+                int Id = rs.getInt(1);
+                java.util.Date Date = rs.getDate(2);
+                  int out=rs.getInt(3);
+                 int in=rs.getInt(4);
+                double amount=rs.getDouble(5);
+                String desc=rs.getString(6);
+                 String user=rs.getString(7);
+                    list.add(new Moves_Account(Id, Date,out,in,amount,desc,user));
+            }
+        return list;
+    }
+        public double GetSaldoInicial(int month,int year,int account) throws SQLException {
+            
+            String sql = "SELECT (A.inicial - (CASE WHEN (SELECT COUNT(*) FROM expense B WHERE "
+                + "B.account_id="+account+" AND B.date<'"+year+"-"+month+"-1')=0 "
+                + "THEN 0 ELSE (SELECT SUM(B.amount) FROM expense B WHERE"
+                + " B.account_id="+account+" AND B.date<'"+year+"-"+month+"-1') END) +"
+                + " (CASE WHEN (SELECT COUNT(*) FROM income B WHERE "
+                + "B.account_id="+account+" AND B.date<'"+year+"-"+month+"-1')=0 "
+                + "THEN 0 ELSE (SELECT SUM(B.amount) FROM income B WHERE "
+                + "B.account_id="+account+" AND B.date<'"+year+"-"+month+"-1') END)  +"
+                + " (CASE WHEN (SELECT COUNT(*) FROM moves_account B "
+                + "WHERE B.in_id="+account+" AND B.date<'"+year+"-"+month+"-1')=0 "
+                + "THEN 0 ELSE (SELECT SUM(B.amount) FROM moves_account B "
+                + "WHERE B.in_id="+account+" AND B.date<'"+year+"-"+month+"-1') END) -"
+                + " (CASE WHEN (SELECT COUNT(*) FROM moves_account B "
+                + "WHERE B.out_id="+account+" AND B.date<'"+year+"-"+month+"-1')=0"
+                + " THEN 0 ELSE (SELECT SUM(B.amount) FROM moves_account B "
+                + "WHERE B.out_id="+account+" AND B.date<'"+year+"-"+month+"-1') END))"
+                + " as saldo FROM account A WHERE A.id="+account+" ;";
+            
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            while (rs.next()) {
+            return rs.getDouble(1);
+            }
+        return 0;
+    }
+      public List<Income_Type> GetIncomeTypes() throws SQLException {
         String sql = "SELECT * FROM income_type WHERE id<>1 ORDER BY description asc;";
         List<Income_Type> list = new ArrayList<Income_Type>();
             Statement st = con.createStatement();
@@ -371,9 +551,50 @@ public class Conexion {
             }
         return list;
     }
-    public List<Sale> GetSales() throws SQLException {
+        public Request GetRequestById(int idd) throws SQLException {
+        String sql = "SELECT A.id,A.date,A.comentario,B.description,A.account_id,C.description,A.state_id,"
+                + "CASE WHEN (SELECT COUNT(*) FROM inventory F WHERE F.request_id=A.id)=0 THEN 0 ELSE "
+                + "(SELECT SUM(F.cost) FROM inventory F WHERE F.request_id=A.id) END as monto"
+                + " FROM request A INNER JOIN provider B ON(A.provider_id=B.id) INNER JOIN account C "
+                + "ON(A.account_id=C.id) WHERE A.id="+idd+";";
+        List<Request> list = new ArrayList<Request>();
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            while (rs.next()) {
+                int Id = rs.getInt(1);
+                java.util.Date Date = rs.getDate(2);
+                String Comentario=rs.getString(3);
+                String provider=rs.getString(4);
+                int account_id=rs.getInt(5);
+                String account=rs.getString(6);
+                int state=rs.getInt(7);
+                double monto=rs.getDouble(8);
+                return new Request(Id, Date,Comentario,provider,account_id,account,state,monto);
+            }
+        return null;
+    }
+
+      public List<Sale> GetSales() throws SQLException {
         String sql = "SELECT A.id,A.date,A.client_id,B.description,A.comentario,A.monto "
-                + " FROM sale A INNER JOIN client B ON(A.client_id=B.id) order by A.date asc ;";
+                + " FROM sale A INNER JOIN client B ON(A.client_id=B.id) order by A.date desc ;";
+        List<Sale> list = new ArrayList<Sale>();
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            while (rs.next()) {
+                int Id = rs.getInt(1);
+                java.util.Date Date = rs.getDate(2);
+                  int client_id=rs.getInt(3);
+                 String client=rs.getString(4);
+                String comen=rs.getString(5);
+                double monto=rs.getDouble(6);
+                    list.add(new Sale(Id, Date,client_id,client,comen,monto));
+            }
+        return list;
+    }
+ 
+    public List<Sale> GetSalesByMonthYear(int mes, int ano) throws SQLException {
+        String sql = "SELECT A.id,A.date,A.client_id,B.description,A.comentario,A.monto "
+                + " FROM sale A INNER JOIN client B ON(A.client_id=B.id) WHERE YEAR(A.date)="+ano+" AND MONTH(A.date)="+mes+" order by A.date desc ;";
         List<Sale> list = new ArrayList<Sale>();
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery(sql);
@@ -645,6 +866,22 @@ public class Conexion {
                     list.add(new Service_Type(Id,Description,cost,cost1,price,min));
             }
         return list;
+    }      public Service_Type GetServiceTypeById(int id) throws SQLException {
+        String sql = "SELECT * FROM service_type WHERE id="+id+" ORDER BY description asc;";
+        List<Service_Type> list = new ArrayList<Service_Type>();
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            while (rs.next()) {
+                int Id = rs.getInt(1);
+                String Description=rs.getString(2);
+                double cost=rs.getDouble(3);
+                 double cost1=rs.getDouble(4);
+                double price=rs.getDouble(5);
+            int min=rs.getInt(6);
+             
+                    return new Service_Type(Id,Description,cost,cost1,price,min);
+            }
+        return null;
     }  
         public List<Sale_Inventory> GetSaleInventoryBySale(int idd) throws SQLException {
         String sql = "SELECT A.id,A.inventory_id,B.description,A.qty,A.amount FROM sale_inventory A INNER JOIN inventory_type B ON(A.inventory_id=B.id) WHERE A.sale_id="+idd+" ORDER BY A.id asc;";
@@ -722,7 +959,20 @@ public class Conexion {
             }
         return list;
     }
-
+       public List<Flujo> GetFlujoEgresosGiftCARD() throws SQLException {
+        String sql = "SELECT MONTH(A.date),SUM(A.amount) FROM income A WHERE A.account_id=0 AND"
+                + " YEAR(A.date)=2019 GROUP BY MONTH(A.date);";
+        List<Flujo> list = new ArrayList<Flujo>();
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            while (rs.next()) {
+               
+                 int montot=rs.getInt(1);
+                 double montopagado=rs.getDouble(2);
+                    list.add(new Flujo(montot,montopagado));
+            }
+        return list;
+    }
     public Client GetClientById(int id) throws SQLException {
         String sql = "SELECT A.id,A.description,A.direccion,A.email,A.telefono,"
                 + "(CASE WHEN (SELECT COUNT(*) FROM sale B WHERE B.client_id=A.id ) =0 THEN 0"
@@ -821,8 +1071,10 @@ public class Conexion {
             st.executeUpdate(sql);    
     }
     public void AddExpense(Expense obj) throws SQLException { 
-      int year=1900+obj.Date.getYear();
-        String dates=year+"-"+obj.Date.getMonth()+"-"+obj.Date.getDate();
+     int mes = obj.Date.getMonth() + 1;
+        int year = obj.Date.getYear() + 1900;
+        int dia = obj.Date.getDate();
+        String dates=year+"-"+mes+"-"+dia;
      String sql = "INSERT INTO expense VALUES(null,'"+dates+"'," + obj.Type_Id+",'"
               +obj.Concept+"'," +obj.Account_Id+"," +obj.Bills+",'" +obj.BillsNumber+
               "'," +obj.Amount+"," +Save.TemporalUser.Id+");";
@@ -830,9 +1082,11 @@ public class Conexion {
             st.executeUpdate(sql);    
     }
     public void AddIncome(Income obj) throws SQLException { 
-     int year=1900+obj.Date.getYear();
-        String dates=year+"-"+obj.Date.getMonth()+"-"+obj.Date.getDate();
-      String sql = "INSERT INTO income VALUES(null,'"+dates+"'," + obj.Client_Id+"," + obj.Type_Id+",'"
+      int mes = obj.Date.getMonth() + 1;
+        int year = obj.Date.getYear() + 1900;
+        int dia = obj.Date.getDate();
+        String dates=year+"-"+mes+"-"+dia;
+        String sql = "INSERT INTO income VALUES(null,'"+dates+"'," + obj.Client_Id+"," + obj.Type_Id+",'"
               +obj.Concept+"'," +obj.Account_Id+"," +obj.Bills+",'" +obj.BillsNumber+
               "'," +obj.Amount+"," +Save.TemporalUser.Id+");";
             PreparedStatement st = con.prepareStatement(sql);
@@ -851,17 +1105,21 @@ public class Conexion {
             st.executeUpdate(sql);    
     }
     public void AddMovesCajas(Moves_Account obj) throws SQLException { 
-     int year=1900+obj.Date.getYear();
-        String dates=year+"-"+obj.Date.getMonth()+"-"+obj.Date.getDate();
-      String sql = "INSERT INTO moves_account VALUES(null,'"+dates+"'," + obj.Out_Id+"," + obj.In_Id+","
+      int mes = obj.Date.getMonth() + 1;
+        int year = obj.Date.getYear() + 1900;
+        int dia = obj.Date.getDate();
+        String dates=year+"-"+mes+"-"+dia;
+        String sql = "INSERT INTO moves_account VALUES(null,'"+dates+"'," + obj.Out_Id+"," + obj.In_Id+","
               +obj.Amount+",'" +obj.Description+"',"+Save.TemporalUser.Id+");";
             PreparedStatement st = con.prepareStatement(sql);
             st.executeUpdate(sql);    
     }
     public void AddRequest(Request obj,List<Inventory> list,Expense obj2  ) throws SQLException { 
-       int year=1900+obj.Date.getYear();
-        String dates=year+"-"+obj.Date.getMonth()+"-"+obj.Date.getDate();
-    
+       int mes = obj.Date.getMonth() + 1;
+        int year = obj.Date.getYear() + 1900;
+        int dia = obj.Date.getDate();
+        String dates=year+"-"+mes+"-"+dia;
+      
       String sql = "INSERT INTO request VALUES(null,'"+dates+"','" + obj.Comentario+"'," + obj.Provider_Id+","
                             +obj.Account_Id+",2);";
             PreparedStatement st = con.prepareStatement(sql);
@@ -910,9 +1168,10 @@ public class Conexion {
             st9.executeUpdate(sql); } 
     }
     public void AddRequest(Request obj,List<Inventory> list) throws SQLException { 
-       int year=1900+obj.Date.getYear();
-        String dates=year+"-"+obj.Date.getMonth()+"-"+obj.Date.getDate();
-    
+       int mes = obj.Date.getMonth() + 1;
+        int year = obj.Date.getYear() + 1900;
+        int dia = obj.Date.getDate();
+        String dates=year+"-"+mes+"-"+dia;
       String sql = "INSERT INTO request VALUES(null,'"+dates+"','" + obj.Comentario+"'," + obj.Provider_Id+","
                             +obj.Account_Id+",0);";
             PreparedStatement st = con.prepareStatement(sql);
@@ -940,95 +1199,36 @@ public class Conexion {
 }    
        
     }
-////    public void AddRequestRec(Request obj,List<Inventory> list,Expense obj2  ) throws SQLException { 
-////       int year=1900+obj.Date.getYear();
-////        String dates=year+"-"+obj.Date.getMonth()+"-"+obj.Date.getDate();
-////    
-////      String sql = "INSERT INTO request VALUES(null,'"+dates+"','" + obj.Comentario+"'," + obj.Provider_Id+","
-////                            +obj.Account_Id+",3);";
-////            PreparedStatement st = con.prepareStatement(sql);
-////            st.executeUpdate(sql);   
-////            
-////         sql = "SELECT MAX(id) FROM request;";
-////       int request=0;
-////            Statement st2 = con.createStatement();
-////            ResultSet rs = st2.executeQuery(sql);
-////            while (rs.next()) {
-////                try{
-////                request = rs.getInt(1);
-////                }
-////                catch(NumberFormatException e)
-////                {
-////                    
-////                }
-////            }         
-////            
-////          for(Inventory ob2 : list){
-////          sql = "INSERT INTO inventory VALUES(null,"+ob2.Type_Id+"," + request+"," + ob2.Qty+","
-////              +ob2.Cost+",0);";
-////            PreparedStatement st3 = con.prepareStatement(sql);
-////            st3.executeUpdate(sql); 
-////                   sql = "UPDATE inventory_type SET totalstock=totalstock+"+ob2.Qty+" WHERE id=" + ob2.Type_Id+";";
-////            PreparedStatement st4 = con.prepareStatement(sql);
-////            st4.executeUpdate(sql); 
-////}    
-////         if(obj2.Type_Id!=0){
-////           sql = "INSERT INTO expense VALUES(null,'"+dates+"',1,''," +obj.Account_Id+"," +obj2.Bills+",'" +obj2.BillsNumber+
-////              "'," +obj2.Amount+"," +Save.TemporalUser.Id+");";
-////            PreparedStatement st4 = con.prepareStatement(sql);
-////            st4.executeUpdate(sql);   
-////                     sql = "SELECT MAX(id) FROM expense;";
-////       int expense=0;
-////            Statement st5 = con.createStatement();
-////            ResultSet rs5 = st5.executeQuery(sql);
-////            while (rs5.next()) {
-////                try{
-////                expense = rs5.getInt(1);
-////                }
-////                catch(NumberFormatException e)
-////                {
-////                    
-////                }
-////            }         
-////             sql = "INSERT INTO provider_pay VALUES(null," +obj.Provider_Id+"," +expense+");";
-////            PreparedStatement st9 = con.prepareStatement(sql);
-////            st9.executeUpdate(sql); } 
-////    }
-////    public void AddRequestRec(Request obj,List<Inventory> list) throws SQLException { 
-////       int year=1900+obj.Date.getYear();
-////        String dates=year+"-"+obj.Date.getMonth()+"-"+obj.Date.getDate();
-////    
-////      String sql = "INSERT INTO request VALUES(null,'"+dates+"','" + obj.Comentario+"'," + obj.Provider_Id+","
-////                            +obj.Account_Id+",1);";
-////            PreparedStatement st = con.prepareStatement(sql);
-////            st.executeUpdate(sql);   
-////            
-////         sql = "SELECT MAX(id) FROM request;";
-////       int request=0;
-////            Statement st2 = con.createStatement();
-////            ResultSet rs = st2.executeQuery(sql);
-////            while (rs.next()) {
-////                try{
-////                request = rs.getInt(1);
-////                }
-////                catch(NumberFormatException e)
-////                {
-////                    
-////                }
-////            }         
-////            
-////          for(Inventory ob2 : list){
-////          sql = "INSERT INTO inventory VALUES(null,"+ob2.Type_Id+"," + request+"," + ob2.Qty+","
-////              +ob2.Cost+",0);";
-////            PreparedStatement st3 = con.prepareStatement(sql);
-////            st3.executeUpdate(sql); 
-////            
-////             sql = "UPDATE inventory_type SET totalstock=totalstock+"+ob2.Qty+" WHERE id=" + ob2.Type_Id+";";
-////            PreparedStatement st4 = con.prepareStatement(sql);
-////            st4.executeUpdate(sql); 
-////}    
-////       
-////    }
+       public void AddToRequest(int request,Inventory ob2) throws SQLException { 
+    
+         String sql = "INSERT INTO inventory VALUES(null,"+ob2.Type_Id+"," + request+"," + ob2.Qty+","
+              +ob2.Cost+",0);";
+            PreparedStatement st3 = con.prepareStatement(sql);
+            st3.executeUpdate(sql); 
+ Request obj=GetRequestById(request);
+ if(obj.State_Id==1){
+     sql = "UPDATE request SET state_id=0 WHERE id="+request+";";
+            st3 = con.prepareStatement(sql);
+            st3.executeUpdate(sql); 
+ } else  if(obj.State_Id==3){
+     sql = "UPDATE request SET state_id=2 WHERE id="+request+";";
+            st3 = con.prepareStatement(sql);
+            st3.executeUpdate(sql); 
+ }
+       //QUE ACTUALICE EL REQUEST SI YA ESTA MARCADO CÓMO ENTREGADO
+    }
+      public void UpdateComentarioRequest(int request,String coment) throws SQLException { 
+    
+         String sql = "UPDATE request SET comentario='"+coment+"' WHERE id="+request+";";
+            PreparedStatement st3 = con.prepareStatement(sql);
+            st3.executeUpdate(sql); 
+    }
+   public void UpdateComentarioMoves(int request,String coment) throws SQLException { 
+    
+         String sql = "UPDATE inventory_reg SET detalle='"+coment+"' WHERE id="+request+";";
+            PreparedStatement st3 = con.prepareStatement(sql);
+            st3.executeUpdate(sql); 
+    }
     public void UpdateInventarioRecibido(int idreq ) throws SQLException { 
 
            String sql = "UPDATE inventory SET status=1 WHERE id="+idreq+";";
@@ -1070,6 +1270,35 @@ public class Conexion {
             
 
     }
+       public void DowndateRequestPagado(int idreq ) throws SQLException { 
+
+        String sql = "SELECT state_id FROM request WHERE id="+idreq+";";
+       int request=0;
+            Statement st2 = con.createStatement();
+            ResultSet rs2 = st2.executeQuery(sql);
+            while (rs2.next()) {
+                try{
+                request = rs2.getInt(1);
+                }
+                catch(NumberFormatException e)
+                {
+                    
+                }
+            }    
+            if(request==2){
+            sql = "UPDATE request SET state_id=0 WHERE id="+idreq+";";
+            PreparedStatement st = con.prepareStatement(sql);
+            st.executeUpdate(sql);   
+            
+            }else if(request==3){
+                  sql = "UPDATE request SET state_id=1 WHERE id="+idreq+";";
+            PreparedStatement st = con.prepareStatement(sql);
+            st.executeUpdate(sql);   
+            }
+            
+
+    }
+ 
     public void AddPagoRequest(int idreq,Expense expense ) throws SQLException { 
 
             AddExpense(expense);
@@ -1097,9 +1326,10 @@ public class Conexion {
     }
   
     public void AddSale(Sale obj,List<Sale_Inventory> list,List<Sale_Service> list2,List<Income> list3) throws SQLException { 
-     int year=1900+obj.Date.getYear();
-        String dates=year+"-"+obj.Date.getMonth()+"-"+obj.Date.getDate();
-      
+      int mes = obj.Date.getMonth() + 1;
+        int year = obj.Date.getYear() + 1900;
+        int dia = obj.Date.getDate();
+        String dates=year+"-"+mes+"-"+dia;  
       String sql = "INSERT INTO sale VALUES(null,'"+dates+"'," + obj.Client_Id+",'" + obj.Comentario+"',"
                             +obj.Monto+");";
             PreparedStatement st = con.prepareStatement(sql);
@@ -1161,9 +1391,10 @@ public class Conexion {
           } } 
     }
     public void UpdateSale(Sale obj) throws SQLException { 
-     int year=1900+obj.Date.getYear();
-        String dates=year+"-"+obj.Date.getMonth()+"-"+obj.Date.getDate();
-      
+      int mes = obj.Date.getMonth() + 1;
+        int year = obj.Date.getYear() + 1900;
+        int dia = obj.Date.getDate();
+        String dates=year+"-"+mes+"-"+dia;  
       String sql = "UPDATE sale SET date='"+dates+"',client_id=" + obj.Client_Id+",comentario='" + obj.Comentario+"',monto='"
                             +obj.Monto+"' WHERE id="+obj.Id+";";
             PreparedStatement st = con.prepareStatement(sql);
@@ -1172,9 +1403,10 @@ public class Conexion {
     }
   
     public void AddMovesProducto(Inventory_Reg obj,List<Inventory_Moves> list) throws SQLException { 
-     int year=1900+obj.Date.getYear();
-        String dates=year+"-"+obj.Date.getMonth()+"-"+obj.Date.getDate();
-      
+      int mes = obj.Date.getMonth() + 1;
+        int year = obj.Date.getYear() + 1900;
+        int dia = obj.Date.getDate();
+        String dates=year+"-"+mes+"-"+dia;  
       String sql = "INSERT INTO inventory_reg VALUES(null,'"+dates+"','" + obj.Detalle+"');";
             PreparedStatement st = con.prepareStatement(sql);
             st.executeUpdate(sql);   
@@ -1192,23 +1424,23 @@ public class Conexion {
                     
                 }
             }         
-            if(list.size()>0){
+            
           for(Inventory_Moves ob2 : list){
           sql = "INSERT INTO inventory_moves VALUES(null,"+ob2.Out_Id+"," +ob2.In_Id+","+ob2.Type_Id+","+ob2.Qty+","+ob2.Trash+","+ request+");";
             PreparedStatement st3 = con.prepareStatement(sql);
             st3.executeUpdate(sql); 
             if(ob2.In_Id==2){
-             sql = "UPDATE inventory_type SET puntoventastock=puntoventastock+"+ ob2.Qty+" WHERE id="+ob2.Type_Id+";";
-             PreparedStatement st7 = con.prepareStatement(sql);
-            st7.executeUpdate(sql);
+            String sql2 = "UPDATE inventory_type SET puntoventastock=puntoventastock+"+ ob2.Qty+" WHERE id="+ob2.Type_Id+";";
+             PreparedStatement st7 = con.prepareStatement(sql2);
+            st7.executeUpdate(sql2);
             }else if(ob2.In_Id==3){
-               sql = "UPDATE inventory_type SET cabinastock=cabinastock+"+ ob2.Qty+" WHERE id="+ob2.Type_Id+";";
-                        PreparedStatement st7 = con.prepareStatement(sql);
-            st7.executeUpdate(sql);
+              String sql2 = "UPDATE inventory_type SET cabinastock=cabinastock+"+ ob2.Qty+" WHERE id="+ob2.Type_Id+";";
+                        PreparedStatement st7 = con.prepareStatement(sql2);
+            st7.executeUpdate(sql2);
             }else if(ob2.In_Id==0){
-               sql = "UPDATE inventory_type SET totalstock=totalstock-"+ ob2.Qty+" WHERE id="+ob2.Type_Id+";";
-                      PreparedStatement st7 = con.prepareStatement(sql);
-            st7.executeUpdate(sql);
+               String sql2 = "UPDATE inventory_type SET totalstock=totalstock-"+ ob2.Qty+" WHERE id="+ob2.Type_Id+";";
+                      PreparedStatement st7 = con.prepareStatement(sql2);
+            st7.executeUpdate(sql2);
             }
            
              if(ob2.Out_Id==2){
@@ -1221,18 +1453,57 @@ public class Conexion {
             st6.executeUpdate(sql);  
              }
           
-}        }
+}        
+             
+      
+    }
+     public void AddMovesProducto2(int request,Inventory_Moves ob2) throws SQLException { 
+
+         String sql = "INSERT INTO inventory_moves VALUES(null,"+ob2.Out_Id+"," +ob2.In_Id+","+ob2.Type_Id+","+ob2.Qty+","+ob2.Trash+","+ request+");";
+            PreparedStatement st3 = con.prepareStatement(sql);
+            st3.executeUpdate(sql); 
+            if(ob2.In_Id==2){
+            String sql2 = "UPDATE inventory_type SET puntoventastock=puntoventastock+"+ ob2.Qty+" WHERE id="+ob2.Type_Id+";";
+             PreparedStatement st7 = con.prepareStatement(sql2);
+            st7.executeUpdate(sql2);
+            }else if(ob2.In_Id==3){
+              String sql2 = "UPDATE inventory_type SET cabinastock=cabinastock+"+ ob2.Qty+" WHERE id="+ob2.Type_Id+";";
+                        PreparedStatement st7 = con.prepareStatement(sql2);
+            st7.executeUpdate(sql2);
+            }else if(ob2.In_Id==0){
+               String sql2 = "UPDATE inventory_type SET totalstock=totalstock-"+ ob2.Qty+" WHERE id="+ob2.Type_Id+";";
+                      PreparedStatement st7 = con.prepareStatement(sql2);
+            st7.executeUpdate(sql2);
+            }
+           
+             if(ob2.Out_Id==2){
+             sql = "UPDATE inventory_type SET puntoventastock=puntoventastock-"+ ob2.Qty+" WHERE id="+ob2.Type_Id+";";
+                  PreparedStatement st6 = con.prepareStatement(sql);
+            st6.executeUpdate(sql); 
+             }else if(ob2.Out_Id==3){
+               sql = "UPDATE inventory_type SET cabinastock=cabinastock-"+ ob2.Qty+" WHERE id="+ob2.Type_Id+";";
+                          PreparedStatement st6 = con.prepareStatement(sql);
+            st6.executeUpdate(sql);  
+             
+          
+}        
              
       
     }
   
     public void AddServiceType(Service_Type obj) throws SQLException { 
-      String sql = "INSERT INTO service_type VALUES(null,'"+obj.Description+"'," + obj.Cost+","
+      String sql = "INSERT INTO service_type VALUES(null,'"+obj.Description+"'," + obj.Price+","
               +obj.Cost1+"," +obj.Price+"," +obj.Category_Id+");";
             PreparedStatement st = con.prepareStatement(sql);
             st.executeUpdate(sql);    
     }
  //UPDATE //
+        public void UpdateServiceType(Service_Type obj,int id) throws SQLException { 
+      String sql = "UPDATE service_type SET description='"+obj.Description+"',cost=" + obj.Price+",cost1="
+              +obj.Cost1+",price=" +obj.Price+",category_id=" +obj.Category_Id+" WHERE id="+id+";";
+            PreparedStatement st = con.prepareStatement(sql);
+            st.executeUpdate(sql);    
+    }
     public void UpdateUser(User obj) throws SQLException {         
       String sql = "UPDATE user SET name='"+obj.Name+"',password='" + obj.Password+"',1 WHERE id="+obj.Id+" ;";
             PreparedStatement st = con.prepareStatement(sql);
@@ -1423,34 +1694,31 @@ public class Conexion {
             ResultSet rs3 = st3.executeQuery(sql3);
             while (rs3.next()) {
                 try{
-                request = rs3.getInt(1);
-                aux=rs3.getInt(2);
+                aux = rs3.getInt(1);
+                request=rs3.getInt(2);
                 }
                 catch(NumberFormatException e)
                 {
                     
                 }
             }
+                  if(aux==1){
             String sql4 ="";
-            if(request==1){
-                if(aux==0){
+            if(request==0){
+           
                sql4 = "UPDATE request SET state_id=1 WHERE id="+obj.Request_Id+";";
-
-                }else if(aux==2){
-                  sql4 = "UPDATE request SET state_id=3 WHERE id="+obj.Request_Id+";";
-
-            }
-            }else{
-                if(aux==1){
-               sql4 = "UPDATE request SET state_id=0 WHERE id="+obj.Request_Id+";";
-
-                }else if(aux==3){
-                   sql4 = "UPDATE request SET state_id=2 WHERE id="+obj.Request_Id+";";
-
-            }  
-            }
-                        PreparedStatement st4 = con.prepareStatement(sql4);
+     PreparedStatement st4 = con.prepareStatement(sql4);
             st4.executeUpdate(sql4);
+                
+            }else if(request==2){
+          
+               sql4 = "UPDATE request SET state_id=3 WHERE id="+obj.Request_Id+";";
+     PreparedStatement st4 = con.prepareStatement(sql4);
+            st4.executeUpdate(sql4);
+              
+            }
+                   
+                  }
     }
         public void DesrecibirRegRequest(int id) throws SQLException { 
         Inventory obj=GetInventoryById(id);
@@ -1473,8 +1741,8 @@ public class Conexion {
             ResultSet rs3 = st3.executeQuery(sql3);
             while (rs3.next()) {
                 try{
-                request = rs3.getInt(1);
-                aux=rs3.getInt(2);
+                aux = rs3.getInt(1);
+                request=rs3.getInt(2);
                 }
                 catch(NumberFormatException e)
                 {
@@ -1482,25 +1750,19 @@ public class Conexion {
                 }
             }
             String sql4 ="";
+                            if(aux==0){
             if(request==1){
-                if(aux==0){
-               sql4 = "UPDATE request SET state_id=1 WHERE id="+obj.Request_Id+";";
-
-                }else if(aux==2){
-                  sql4 = "UPDATE request SET state_id=3 WHERE id="+obj.Request_Id+";";
-
-            }
-            }else{
-                if(aux==1){
                sql4 = "UPDATE request SET state_id=0 WHERE id="+obj.Request_Id+";";
-
-                }else if(aux==3){
-                   sql4 = "UPDATE request SET state_id=2 WHERE id="+obj.Request_Id+";";
-
-            }  
-            }
-                        PreparedStatement st4 = con.prepareStatement(sql4);
+               PreparedStatement st4 = con.prepareStatement(sql4);
             st4.executeUpdate(sql4);
+            }else  if(request==3){
+ 
+                   sql4 = "UPDATE request SET state_id=2 WHERE id="+obj.Request_Id+";";
+PreparedStatement st4 = con.prepareStatement(sql4);
+            st4.executeUpdate(sql4);
+             
+            }
+        }
     }
        public void DeleteMov(int id) throws SQLException { 
       String sql = "DELETE FROM moves_account WHERE id="+id+";";
@@ -1593,6 +1855,12 @@ public class Conexion {
                String sql = "INSERT INTO inventory_type VALUES(null,'"+obj.Description+"'," + obj.Cost+"," + obj.Price+","
               +obj.MinStock+"," +obj.Category_Id+",1," +obj.Provider_Id+
               ",0,0,0);";
+            PreparedStatement st = con.prepareStatement(sql);
+            st.executeUpdate(sql);    
+    }
+             public void AddCategory(String obj) throws SQLException { 
+    
+               String sql = "INSERT INTO inventory_category VALUES(null,'"+obj+"');";
             PreparedStatement st = con.prepareStatement(sql);
             st.executeUpdate(sql);    
     }
@@ -1760,7 +2028,7 @@ public class Conexion {
                 int Account_Id = rs.getInt(6);
                 int Bills = rs.getInt(7);
                 String BillsNumber = rs.getString(8);
-                double Amount = rs.getInt(9);
+                double Amount = rs.getDouble(9);
                 int User_Id = rs.getInt(10);
                 list.add(new Income(Id, Date, IncomesType_Id, Proyect_Id, Concept, Account_Id,
                         Bills, BillsNumber, Amount, User_Id));
@@ -1802,7 +2070,7 @@ public class Conexion {
                 int Account_Id = rs.getInt(5);
                 int Bills = rs.getInt(6);
                 String BillsNumber = rs.getString(7);
-                double Amount = rs.getInt(8);
+                double Amount = rs.getDouble(8);
                 int User_Id = rs.getInt(9);
                 list.add(new Expense(Id, Date, ExpensesCategory_Id, Concept, Account_Id,
                         Bills, BillsNumber, Amount, User_Id));

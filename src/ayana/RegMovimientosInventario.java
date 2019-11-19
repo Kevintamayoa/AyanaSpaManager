@@ -28,6 +28,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.RowFilter;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
@@ -46,6 +47,8 @@ public class RegMovimientosInventario extends javax.swing.JFrame {
         table.getTableHeader().setBackground(Color.white);
         table.getTableHeader().setForeground(Color.black);
         table.getTableHeader().setFont(new Font("InaiMathi", 0, 20)); 
+         DefaultTableCellRenderer tcr = new DefaultTableCellRenderer();
+        table.getColumnModel().getColumn(0).setCellRenderer(tcr);
         table.getColumnModel().getColumn(1).setCellRenderer(new TimestampCellRenderer());
   ImageIcon imagen1 = new ImageIcon(getClass().getResource("Images/Eliminar.png"));
         Icon fondo1 = new ImageIcon(imagen1.getImage().getScaledInstance(25, 25, Image.SCALE_SMOOTH));
@@ -56,6 +59,10 @@ public class RegMovimientosInventario extends javax.swing.JFrame {
              ImageIcon imagen4 = new ImageIcon(getClass().getResource("Images/Buscar.png"));
         Icon fondo4 = new ImageIcon(imagen4.getImage().getScaledInstance(25, 25, Image.SCALE_SMOOTH));
         txtBuscar.setIcon(fondo4);
+        
+          imagen2 = new ImageIcon(getClass().getResource("Images/Editar.png"));
+       fondo2 = new ImageIcon(imagen2.getImage().getScaledInstance(25, 25, Image.SCALE_SMOOTH));
+        btnDetalle1.setIcon(fondo2);
                 try{
         con=new Conexion();
         model=(DefaultTableModel)table.getModel();
@@ -91,6 +98,7 @@ List<Inventory_Moves> request2;
 
         SubMenu = new javax.swing.JPopupMenu();
         btnPagar = new javax.swing.JMenuItem();
+        btnDetalle1 = new javax.swing.JMenuItem();
         btnEliminar = new javax.swing.JMenuItem();
         jPanel2 = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
@@ -113,6 +121,14 @@ List<Inventory_Moves> request2;
             }
         });
         SubMenu.add(btnPagar);
+
+        btnDetalle1.setText("Editar comentario");
+        btnDetalle1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDetalle1ActionPerformed(evt);
+            }
+        });
+        SubMenu.add(btnDetalle1);
 
         btnEliminar.setText("Eliminar");
         btnEliminar.addActionListener(new java.awt.event.ActionListener() {
@@ -192,7 +208,7 @@ List<Inventory_Moves> request2;
 
             },
             new String [] {
-                "Id", "Fecha", "Detalle"
+                "Id", "Fecha", "Comentario"
             }
         ) {
             Class[] types = new Class [] {
@@ -211,7 +227,7 @@ List<Inventory_Moves> request2;
             }
         });
         table.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
-        table.setGridColor(new java.awt.Color(255, 255, 255));
+        table.setGridColor(new java.awt.Color(153, 153, 153));
         table.setMinimumSize(new java.awt.Dimension(2147483647, 2147483647));
         table.setRowHeight(22);
         table.setSelectionBackground(new java.awt.Color(204, 204, 204));
@@ -322,6 +338,7 @@ List<Inventory_Moves> request2;
 
     private void btnPagarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPagarActionPerformed
  Save.Reg=Integer.parseInt(table.getValueAt(table.getSelectedRow(), 0).toString());
+ Save.reg_id=Integer.parseInt(table.getValueAt(table.getSelectedRow(), 0).toString());
         RegMovimientosDet form=new RegMovimientosDet();
          form.setBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
       
@@ -388,6 +405,33 @@ JOptionPane.YES_NO_OPTION);
         Interfaz.RegMovimientosInventariosBool=false;
     }//GEN-LAST:event_formWindowClosing
 
+    private void btnDetalle1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDetalle1ActionPerformed
+        try{
+            int idd=Integer.parseInt(table.getValueAt(table.getSelectedRow(), 0).toString());
+            String name = JOptionPane.showInputDialog(this, "Escriba el nuevo detalle de este movimiento:");
+            if(name!=null){
+                con=new Conexion();
+                con.Conectar();
+                try{
+                    con.UpdateComentarioMoves(idd, name);
+                    request=con.GetInventory_Reg();
+                } catch (SQLException ex) {}
+                con.Desconectar();
+                JOptionPane.showMessageDialog(this,"Cambio realizado con éxito.");
+  table.setValueAt(name,table.getSelectedRow(), 2);
+//                int count= model.getRowCount();
+//                for(int i=0;i<count;i++)
+//                {
+//                    model.removeRow(0);
+//                }
+//                for(Inventory_Reg obj: request)
+//        {
+//            model.addRow(new Object[]{obj.Id,obj.Date,obj.Detalle});
+//        }
+
+            }}catch(Exception e){}
+    }//GEN-LAST:event_btnDetalle1ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -425,6 +469,7 @@ JOptionPane.YES_NO_OPTION);
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPopupMenu SubMenu;
+    private javax.swing.JMenuItem btnDetalle1;
     private javax.swing.JMenuItem btnEliminar;
     private javax.swing.JMenuItem btnPagar;
     private javax.swing.JComboBox<String> cbxFiltro;

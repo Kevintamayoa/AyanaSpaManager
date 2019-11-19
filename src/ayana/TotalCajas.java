@@ -9,7 +9,9 @@ import Adicional.ExportExc;
 import Classes.*;
 import Conexion.Conexion;
 import java.awt.Color;
+import java.awt.Dialog;
 import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.List;
@@ -69,6 +71,8 @@ public class TotalCajas extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        SubMenu = new javax.swing.JPopupMenu();
+        btnEliminar = new javax.swing.JMenuItem();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
@@ -76,6 +80,14 @@ public class TotalCajas extends javax.swing.JFrame {
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu2 = new javax.swing.JMenu();
         jMenuItem3 = new javax.swing.JMenuItem();
+
+        btnEliminar.setText("Ver estado de cuenta");
+        btnEliminar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEliminarActionPerformed(evt);
+            }
+        });
+        SubMenu.add(btnEliminar);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Cajas");
@@ -116,12 +128,17 @@ public class TotalCajas extends javax.swing.JFrame {
         table.setToolTipText("");
         table.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
         table.setCellSelectionEnabled(true);
-        table.setGridColor(new java.awt.Color(255, 255, 255));
+        table.setGridColor(new java.awt.Color(153, 153, 153));
         table.setRowHeight(22);
         table.setSelectionBackground(new java.awt.Color(204, 204, 204));
         table.setSelectionForeground(new java.awt.Color(0, 0, 0));
         table.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         table.setShowGrid(true);
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                tableMouseReleased(evt);
+            }
+        });
         jScrollPane3.setViewportView(table);
         table.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         if (table.getColumnModel().getColumnCount() > 0) {
@@ -202,6 +219,25 @@ j.exportarExcel(table);}
  Interfaz.TotalCajasBool=false;        // TODO add your handling code here:
     }//GEN-LAST:event_formWindowClosing
 
+    private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
+try{
+    Save.account=cuentas.get(table.getSelectedRow());
+        Cajas form=new Cajas();
+form.setModal(true);
+  form.setBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
+        form.setVisible(true);}
+catch(Exception e){
+    
+}finally{}
+    }//GEN-LAST:event_btnEliminarActionPerformed
+
+    private void tableMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableMouseReleased
+        if (evt.getClickCount() == 2 && !evt.isConsumed()) {
+        evt.consume();
+        SubMenu.show(table, evt.getX(), evt.getY());
+        }  
+    }//GEN-LAST:event_tableMouseReleased
+
     /**
      * @param args the command line arguments
      */
@@ -239,6 +275,8 @@ j.exportarExcel(table);}
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPopupMenu SubMenu;
+    private javax.swing.JMenuItem btnEliminar;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;

@@ -145,7 +145,6 @@ Provider prov;
         txtFacturaEgresos.setFont(new java.awt.Font("InaiMathi", 0, 18)); // NOI18N
         txtFacturaEgresos.setForeground(new java.awt.Color(55, 55, 55));
         txtFacturaEgresos.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(51, 51, 51), 1, true));
-        txtFacturaEgresos.setEnabled(false);
 
         jLabel14.setBackground(new java.awt.Color(255, 255, 255));
         jLabel14.setFont(new java.awt.Font("InaiMathi", 0, 18)); // NOI18N

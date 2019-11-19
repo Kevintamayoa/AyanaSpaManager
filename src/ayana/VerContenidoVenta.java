@@ -227,6 +227,7 @@ public class VerContenidoVenta extends javax.swing.JDialog {
                 return canEdit [columnIndex];
             }
         });
+        tableServicios.setGridColor(new java.awt.Color(153, 153, 153));
         tableServicios.setSelectionBackground(new java.awt.Color(204, 204, 204));
         tableServicios.setSelectionForeground(new java.awt.Color(0, 0, 0));
         tableServicios.getTableHeader().setReorderingAllowed(false);
@@ -311,6 +312,7 @@ public class VerContenidoVenta extends javax.swing.JDialog {
                 return canEdit [columnIndex];
             }
         });
+        tableProductos.setGridColor(new java.awt.Color(153, 153, 153));
         tableProductos.setSelectionBackground(new java.awt.Color(204, 204, 204));
         tableProductos.setSelectionForeground(new java.awt.Color(0, 0, 0));
         tableProductos.getTableHeader().setReorderingAllowed(false);

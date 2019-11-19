@@ -47,7 +47,7 @@ public class RegistroIngresos extends javax.swing.JDialog {
         tableIngresos.getTableHeader().setForeground(Color.black);
         tableIngresos.getTableHeader().setFont(new Font("InaiMathi", 0, 20)); 
         tableIngresos.getColumnModel().getColumn(9).setCellRenderer(new CurrencyCellRenderer());
-        tableIngresos.getColumnModel().getColumn(11).setCellRenderer(new CurrencyCellRenderer());
+        tableIngresos.getColumnModel().getColumn(8).setCellRenderer(new CurrencyCellRenderer());
         tableIngresos.getColumnModel().getColumn(10).setCellRenderer(new CurrencyCellRenderer());
         DefaultTableCellRenderer tcr = new DefaultTableCellRenderer();
         tableIngresos.getColumnModel().getColumn(0).setCellRenderer(tcr);
@@ -56,8 +56,7 @@ public class RegistroIngresos extends javax.swing.JDialog {
         tableIngresos.getColumnModel().getColumn(3).setCellRenderer(tcr);
         tableIngresos.getColumnModel().getColumn(4).setCellRenderer(tcr); 
         tableIngresos.getColumnModel().getColumn(5).setCellRenderer(tcr);
-        tableIngresos.getColumnModel().getColumn(6).setCellRenderer(tcr);
-        tableIngresos.getColumnModel().getColumn(8).setCellRenderer(tcr);
+        tableIngresos.getColumnModel().getColumn(7).setCellRenderer(tcr);
         con=new Conexion();
              con.Conectar();       
         model=(DefaultTableModel)tableIngresos.getModel();
@@ -74,6 +73,7 @@ public class RegistroIngresos extends javax.swing.JDialog {
      }else{
          lblSaldo.setVisible(false);
          txtSaldo.setVisible(false);
+         jScrollPane7.setVisible(false);
          btnAgregarPago.setVisible(false);
          incomes=con.GetIncomes();
      }
@@ -83,7 +83,7 @@ public class RegistroIngresos extends javax.swing.JDialog {
      con.Desconectar();
         for(Income obj: incomes)
         {
-            model.addRow(new Object[]{obj.Id,obj.Date,obj.Expense_Type,obj.Client,obj.Concept,"",obj.Account,
+            model.addRow(new Object[]{obj.Id,obj.Date,obj.Expense_Type,obj.Client,obj.Concept,obj.Account,
             obj.Bill(),obj.BillsNumber,obj.Amount,obj.Iva(),obj.AmountSinIva()});
         }
             
@@ -207,21 +207,21 @@ public class RegistroIngresos extends javax.swing.JDialog {
         lblSaldo.setText("Saldo:");
 
         tableIngresos.setBackground(new java.awt.Color(253, 239, 229));
-        tableIngresos.setFont(new java.awt.Font("InaiMathi", 3, 18)); // NOI18N
+        tableIngresos.setFont(new java.awt.Font("InaiMathi", 0, 18)); // NOI18N
         tableIngresos.setForeground(new java.awt.Color(0, 0, 0));
         tableIngresos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Id", "Fecha", "Categoría", "Cliente", "Detalle", "Tipo de Pago", "Cuenta", "Factura", "No. de Factura", "Monto Total", "Iva", "Monto Sin Iva"
+                "Id", "Fecha", "Categoría", "Cliente", "Detalle", "Cuenta", "Factura", "No. de Factura", "Monto Total", "Iva", "Monto Sin Iva"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Boolean.class, java.lang.Object.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class
+                java.lang.Integer.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Boolean.class, java.lang.Object.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false, false, false
+                false, false, false, false, false, false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -233,6 +233,7 @@ public class RegistroIngresos extends javax.swing.JDialog {
             }
         });
         tableIngresos.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
+        tableIngresos.setGridColor(new java.awt.Color(153, 153, 153));
         tableIngresos.setMinimumSize(new java.awt.Dimension(2147483647, 2147483647));
         tableIngresos.setRowHeight(22);
         tableIngresos.setSelectionBackground(new java.awt.Color(204, 204, 204));
@@ -263,9 +264,9 @@ public class RegistroIngresos extends javax.swing.JDialog {
                         .addComponent(cbxFiltro, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 43, Short.MAX_VALUE)
                         .addComponent(lblSaldo, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGap(33, 33, 33)
                         .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(49, 49, 49)
+                        .addGap(28, 28, 28)
                         .addComponent(btnAgregarPago, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jScrollPane4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 796, Short.MAX_VALUE))
                 .addContainerGap())
@@ -371,7 +372,7 @@ public class RegistroIngresos extends javax.swing.JDialog {
             }
             for(Income obj: incomes)
         {
-            model.addRow(new Object[]{obj.Id,obj.Date,obj.Expense_Type,obj.Client,obj.Concept,"",obj.Account,
+            model.addRow(new Object[]{obj.Id,obj.Date,obj.Expense_Type,obj.Client,obj.Concept,obj.Account,
             obj.Bill(),obj.BillsNumber,obj.Amount,obj.Iva(),obj.AmountSinIva()});
         }
         }

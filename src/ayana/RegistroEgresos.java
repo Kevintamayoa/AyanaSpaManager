@@ -7,6 +7,7 @@ package ayana;
 import Adicional.ExportExc;
 import Classes.Expense;
 import Classes.Income;
+import Classes.Provider;
 import Classes.Save;
 import Conexion.Conexion;
 import java.awt.Color;
@@ -45,22 +46,32 @@ public class RegistroEgresos extends javax.swing.JDialog {
         tableEgresos.getTableHeader().setFont(new Font("InaiMathi", 0, 20)); 
         tableEgresos.getColumnModel().getColumn(8).setCellRenderer(new CurrencyCellRenderer());
           tableEgresos.getColumnModel().getColumn(9).setCellRenderer(new CurrencyCellRenderer());
-              tableEgresos.getColumnModel().getColumn(10).setCellRenderer(new CurrencyCellRenderer());
+              tableEgresos.getColumnModel().getColumn(7).setCellRenderer(new CurrencyCellRenderer());
               DefaultTableCellRenderer tcr = new DefaultTableCellRenderer();
         tableEgresos.getColumnModel().getColumn(0).setCellRenderer(tcr);
              tableEgresos.getColumnModel().getColumn(1).setCellRenderer(new TimestampCellRenderer());
         tableEgresos.getColumnModel().getColumn(2).setCellRenderer(tcr);
         tableEgresos.getColumnModel().getColumn(3).setCellRenderer(tcr);
         tableEgresos.getColumnModel().getColumn(4).setCellRenderer(tcr); 
-        tableEgresos.getColumnModel().getColumn(5).setCellRenderer(tcr);
-        tableEgresos.getColumnModel().getColumn(7).setCellRenderer(tcr);
+        tableEgresos.getColumnModel().getColumn(6).setCellRenderer(tcr);
+
         con=new Conexion();
         model=(DefaultTableModel)tableEgresos.getModel();
         con.Conectar();        
      try{
      if(Save.ingreso ==1){
          expenses=con.GetExpensesByProvider(Save.Provider);
+         prov=con.GetProviderById(Save.Provider);
+         jLabel3.setText("Pagos de "+prov.Description);
+         this.setTitle("Pagos de "+prov.Description);
+       DecimalFormat formatea = new DecimalFormat("$###,###.##");    
+           txtSaldo.setText(formatea.format(prov.Saldo()));
+
      }else{
+         lblSaldo.setVisible(false);
+         txtSaldo.setVisible(false);
+         jScrollPane7.setVisible(false);
+         btnAgregarPago.setVisible(false);
           expenses=con.GetExpenses();
      }
       } catch (SQLException ex) {
@@ -68,7 +79,7 @@ public class RegistroEgresos extends javax.swing.JDialog {
      con.Desconectar();
         for(Expense obj: expenses)
         {
-            model.addRow(new Object[]{obj.Id,obj.Date,obj.Expense_Type,obj.Concept,"",obj.Account,
+            model.addRow(new Object[]{obj.Id,obj.Date,obj.Expense_Type,obj.Concept,obj.Account,
             obj.Bill(),obj.BillsNumber,obj.Amount,obj.Iva(),obj.AmountSinIva()});
         }
               trs=new TableRowSorter(model);
@@ -76,6 +87,7 @@ public class RegistroEgresos extends javax.swing.JDialog {
     }
   private DefaultTableModel model;
     public List<Expense> expenses; 
+    public Provider prov;
      Conexion con;
      /**
      * This method is called from within the constructor to initialize the form.
@@ -97,6 +109,10 @@ public class RegistroEgresos extends javax.swing.JDialog {
         txtBuscar = new javax.swing.JLabel();
         cbxFiltro = new javax.swing.JComboBox<>();
         jLabel2 = new javax.swing.JLabel();
+        btnAgregarPago = new javax.swing.JButton();
+        jScrollPane7 = new javax.swing.JScrollPane();
+        txtSaldo = new javax.swing.JTextPane();
+        lblSaldo = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu2 = new javax.swing.JMenu();
         jMenuItem3 = new javax.swing.JMenuItem();
@@ -137,14 +153,14 @@ public class RegistroEgresos extends javax.swing.JDialog {
 
             },
             new String [] {
-                "Id", "Fecha", "Categoría", "Detalle", "Tipo de Pago", "Cuenta", "Factura", "No. de Factura", "Monto Total", "Iva", "Monto Sin Iva"
+                "Id", "Fecha", "Categoría", "Detalle", "Cuenta", "Factura", "No. de Factura", "Monto Total", "Iva", "Monto Sin Iva"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Boolean.class, java.lang.Object.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class
+                java.lang.Integer.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Boolean.class, java.lang.Object.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false, false
+                false, false, false, false, false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -156,7 +172,8 @@ public class RegistroEgresos extends javax.swing.JDialog {
             }
         });
         tableEgresos.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
-        tableEgresos.setGridColor(new java.awt.Color(255, 255, 255));
+        tableEgresos.setFocusTraversalPolicyProvider(true);
+        tableEgresos.setGridColor(new java.awt.Color(153, 153, 153));
         tableEgresos.setMinimumSize(new java.awt.Dimension(2147483647, 2147483647));
         tableEgresos.setRowHeight(22);
         tableEgresos.setSelectionBackground(new java.awt.Color(204, 204, 204));
@@ -193,6 +210,35 @@ public class RegistroEgresos extends javax.swing.JDialog {
         jLabel2.setForeground(new java.awt.Color(51, 51, 51));
         jLabel2.setText("En:");
 
+        btnAgregarPago.setBackground(new java.awt.Color(217, 234, 220));
+        btnAgregarPago.setFont(new java.awt.Font("InaiMathi", 0, 12)); // NOI18N
+        btnAgregarPago.setForeground(new java.awt.Color(51, 51, 51));
+        btnAgregarPago.setText("Agregar nuevo pago");
+        btnAgregarPago.setToolTipText("");
+        btnAgregarPago.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(145, 146, 147)));
+        btnAgregarPago.setFocusTraversalPolicyProvider(true);
+        btnAgregarPago.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAgregarPagoActionPerformed(evt);
+            }
+        });
+
+        txtSaldo.setEditable(false);
+        txtSaldo.setBackground(new java.awt.Color(255, 255, 255));
+        txtSaldo.setBorder(javax.swing.BorderFactory.createCompoundBorder());
+        txtSaldo.setFont(new java.awt.Font("InaiMathi", 0, 16)); // NOI18N
+        txtSaldo.setForeground(new java.awt.Color(51, 51, 51));
+        txtSaldo.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtSaldoKeyTyped(evt);
+            }
+        });
+        jScrollPane7.setViewportView(txtSaldo);
+
+        lblSaldo.setFont(new java.awt.Font("InaiMathi", 0, 14)); // NOI18N
+        lblSaldo.setForeground(new java.awt.Color(51, 51, 51));
+        lblSaldo.setText("Saldo:");
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -210,7 +256,12 @@ public class RegistroEgresos extends javax.swing.JDialog {
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(cbxFiltro, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 367, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 52, Short.MAX_VALUE)
+                        .addComponent(lblSaldo, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(49, 49, 49)
+                        .addComponent(btnAgregarPago, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
@@ -222,9 +273,13 @@ public class RegistroEgresos extends javax.swing.JDialog {
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cbxFiltro, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                        .addComponent(btnAgregarPago, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lblSaldo, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jScrollPane7, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 421, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 420, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -292,7 +347,10 @@ public class RegistroEgresos extends javax.swing.JDialog {
             try{
                 con.DeleteExpense(Integer.parseInt( tableEgresos.getValueAt(tableEgresos.getSelectedRow(), 0).toString()));
                  if(Save.ingreso ==1){
-         expenses=con.GetExpensesByProvider(Save.Provider);
+        prov=con.GetProviderById(Save.Provider);
+        DecimalFormat formatea = new DecimalFormat("$###,###.##");    
+        txtSaldo.setText(formatea.format(prov.Saldo()));
+        expenses=con.GetExpensesByProvider(Save.Provider);
      }else{
           expenses=con.GetExpenses();
      }
@@ -307,7 +365,7 @@ public class RegistroEgresos extends javax.swing.JDialog {
             }
                    for(Expense obj: expenses)
         {
-            model.addRow(new Object[]{obj.Id,obj.Date,obj.Expense_Type,obj.Concept,"",obj.Account,
+            model.addRow(new Object[]{obj.Id,obj.Date,obj.Expense_Type,obj.Concept,obj.Account,
             obj.Bill(),obj.BillsNumber,obj.Amount,obj.Iva(),obj.AmountSinIva()});
         }
         }
@@ -330,6 +388,43 @@ public class RegistroEgresos extends javax.swing.JDialog {
             j.exportarExcel(tableEgresos);}
         catch(IOException e){}
     }//GEN-LAST:event_jMenuItem3ActionPerformed
+
+    private void btnAgregarPagoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarPagoActionPerformed
+        Save.ingreso=1;
+        try{
+ 
+            Save.Providertext=prov.Description;
+            Save.ProviderSaldo=prov.Saldo();
+            AuxPagos form=new AuxPagos();
+            form.setModal(true);
+            form.setVisible(true);
+      }catch(Exception e){}
+       int j=model.getRowCount();
+        for(int i=0;i<j;i++){
+            model.removeRow(j-i-1);
+        }
+        
+        con=new Conexion();
+        con.Conectar();
+        try{
+            expenses=con.GetExpensesByProvider(Save.Provider);
+         prov=con.GetProviderById(Save.Provider);
+       DecimalFormat formatea = new DecimalFormat("$###,###.##");    
+           txtSaldo.setText(formatea.format(prov.Saldo()));
+        } catch (SQLException ex) {
+        }
+        con.Desconectar();
+        
+       for(Expense obj: expenses)
+        {
+            model.addRow(new Object[]{obj.Id,obj.Date,obj.Expense_Type,obj.Concept,obj.Account,
+            obj.Bill(),obj.BillsNumber,obj.Amount,obj.Iva(),obj.AmountSinIva()});
+        }
+    }//GEN-LAST:event_btnAgregarPagoActionPerformed
+
+    private void txtSaldoKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSaldoKeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtSaldoKeyTyped
 
     /**
      * @param args the command line arguments
@@ -369,6 +464,7 @@ public class RegistroEgresos extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPopupMenu SubMenu;
+    private javax.swing.JButton btnAgregarPago;
     private javax.swing.JMenuItem btnEliminar;
     private javax.swing.JComboBox<String> cbxFiltro;
     private javax.swing.JLabel jLabel2;
@@ -379,8 +475,11 @@ public class RegistroEgresos extends javax.swing.JDialog {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane7;
+    private javax.swing.JLabel lblSaldo;
     private javax.swing.JTable tableEgresos;
     private javax.swing.JLabel txtBuscar;
     private javax.swing.JTextPane txtBusqueda;
+    private javax.swing.JTextPane txtSaldo;
     // End of variables declaration//GEN-END:variables
 }

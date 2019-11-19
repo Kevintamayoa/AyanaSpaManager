@@ -6,21 +6,20 @@
 package ayana;
 
 import Classes.Account;
-import Classes.Client;
 import Classes.ComboListener;
-import Classes.Income;
+import Classes.Expense;
+import Classes.Inventory;
 import Classes.Inventory_Type;
 import Classes.Provider;
+import Classes.Request;
 import Classes.Sale_Inventory;
-import Classes.Sale_Service;
 import Classes.Save;
-import Classes.Service_Type;
 import Conexion.Conexion;
 import java.awt.Image;
-import java.sql.Date;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -35,37 +34,40 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author macbook
  */
-public class AddSaleProduct extends javax.swing.JDialog {
+public class AddRegInventario extends javax.swing.JDialog {
 
     /**
-     * Creates new form AddSaleProduct
+     * Creates new form AddRegInventario
      */
-    public AddSaleProduct() {
+    public AddRegInventario() {
         initComponents();
-         setIconImage (new ImageIcon(getClass().getResource("Images/Screenshot_1.png")).getImage());
-    ImageIcon imagen = new ImageIcon(getClass().getResource("Images/Guardar.png"));
-      Icon  fondo = new ImageIcon(imagen.getImage().getScaledInstance(25, 25, Image.SCALE_SMOOTH));
+        setIconImage(new ImageIcon(getClass().getResource("Images/Screenshot_1.png")).getImage());
+        ImageIcon imagen = new ImageIcon(getClass().getResource("Images/Guardar.png"));
+        Icon fondo = new ImageIcon(imagen.getImage().getScaledInstance(25, 25, Image.SCALE_SMOOTH));
         btnCapturaEgresos.setIcon(fondo);
-      
-        MontoProduct=0;
-        con=new Conexion();
-           con.Conectar();
-          try {
-        inventory_type=con.GetInventoryTypes();
-       sale_inventory=con.GetSaleInventoryBySale(Save.Sale2.Id);
-        } catch (SQLException ex) {}     
-        con.Desconectar();
-  for(Inventory_Type obj : inventory_type){
-        vectorProveedor.add(obj.Description);
+
+        MontoProduct = 0;
+        con = new Conexion();
+        con.Conectar();
+        try {
+            inventory_type = con.GetInventoryTypesByProvider(Save.Provider);
+        } catch (SQLException ex) {
         }
-             cbxProducto.setModel(new DefaultComboBoxModel(vectorProveedor));		
-JTextField text2 = (JTextField)cbxProducto.getEditor().getEditorComponent();
-		text2.setFocusable(true);
-		text2.setText("");
-		text2.addKeyListener(new ComboListener(cbxProducto,vectorProveedor));
+        con.Desconectar();
+        for (Inventory_Type obj : inventory_type) {
+            vectorProveedor.add(obj.Description);
+        }
+        cbxProducto.setModel(new DefaultComboBoxModel(vectorProveedor));
+        JTextField text2 = (JTextField) cbxProducto.getEditor().getEditorComponent();
+        text2.setFocusable(true);
+        text2.setText("");
+        text2.addKeyListener(new ComboListener(cbxProducto, vectorProveedor));
     }
-@SuppressWarnings("rawtypes")
-Vector vectorProveedor = new Vector();
+    double MontoProduct;
+    Conexion con;
+    DecimalFormat formatea;
+    List<Inventory_Type> inventory_type;
+    Vector vectorProveedor = new Vector();
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -76,26 +78,22 @@ Vector vectorProveedor = new Vector();
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        jLabel10 = new javax.swing.JLabel();
+        jLabel17 = new javax.swing.JLabel();
         btnCapturaEgresos = new javax.swing.JButton();
-        Contacto = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
-        jLabel12 = new javax.swing.JLabel();
         txtMontoProducto = new javax.swing.JTextField();
+        jLabel11 = new javax.swing.JLabel();
+        Contacto = new javax.swing.JLabel();
         nupCantidad = new javax.swing.JSpinner();
         cbxProducto = new javax.swing.JComboBox<>();
-
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Agregar producto a la venta");
-        setBackground(new java.awt.Color(255, 255, 255));
-        setResizable(false);
+        jLabel10 = new javax.swing.JLabel();
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
 
-        jLabel10.setFont(new java.awt.Font("InaiMathi", 0, 18)); // NOI18N
-        jLabel10.setForeground(new java.awt.Color(102, 102, 102));
-        jLabel10.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-        jLabel10.setText("Producto");
+        jLabel17.setBackground(new java.awt.Color(217, 234, 220));
+        jLabel17.setFont(new java.awt.Font("InaiMathi", 1, 20)); // NOI18N
+        jLabel17.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel17.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel17.setText("Agregar producto a pedido");
 
         btnCapturaEgresos.setBackground(new java.awt.Color(255, 255, 255));
         btnCapturaEgresos.setFont(new java.awt.Font("InaiMathi", 0, 18)); // NOI18N
@@ -108,22 +106,6 @@ Vector vectorProveedor = new Vector();
                 btnCapturaEgresosActionPerformed(evt);
             }
         });
-
-        Contacto.setFont(new java.awt.Font("InaiMathi", 0, 18)); // NOI18N
-        Contacto.setForeground(new java.awt.Color(102, 102, 102));
-        Contacto.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-        Contacto.setText("Cantidad");
-
-        jLabel11.setFont(new java.awt.Font("InaiMathi", 0, 18)); // NOI18N
-        jLabel11.setForeground(new java.awt.Color(102, 102, 102));
-        jLabel11.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-        jLabel11.setText("Monto");
-
-        jLabel12.setBackground(new java.awt.Color(217, 234, 220));
-        jLabel12.setFont(new java.awt.Font("InaiMathi", 1, 20)); // NOI18N
-        jLabel12.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel12.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel12.setText("Agregar producto a venta");
 
         txtMontoProducto.setBackground(new java.awt.Color(255, 248, 245));
         txtMontoProducto.setFont(new java.awt.Font("InaiMathi", 0, 18)); // NOI18N
@@ -140,6 +122,16 @@ Vector vectorProveedor = new Vector();
                 txtMontoProductoKeyReleased(evt);
             }
         });
+
+        jLabel11.setFont(new java.awt.Font("InaiMathi", 0, 18)); // NOI18N
+        jLabel11.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel11.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        jLabel11.setText("Monto");
+
+        Contacto.setFont(new java.awt.Font("InaiMathi", 0, 18)); // NOI18N
+        Contacto.setForeground(new java.awt.Color(102, 102, 102));
+        Contacto.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        Contacto.setText("Cantidad");
 
         nupCantidad.setFont(new java.awt.Font("InaiMathi", 0, 18)); // NOI18N
         nupCantidad.setModel(new javax.swing.SpinnerNumberModel(1, 1, null, 1));
@@ -158,13 +150,18 @@ Vector vectorProveedor = new Vector();
             }
         });
 
+        jLabel10.setFont(new java.awt.Font("InaiMathi", 0, 18)); // NOI18N
+        jLabel10.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel10.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        jLabel10.setText("Producto");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGap(40, 40, 40)
+            .addComponent(jLabel17, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(76, 76, 76)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -175,17 +172,17 @@ Vector vectorProveedor = new Vector();
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(cbxProducto, javax.swing.GroupLayout.PREFERRED_SIZE, 320, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(nupCantidad, javax.swing.GroupLayout.PREFERRED_SIZE, 320, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtMontoProducto, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 320, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(40, 40, 40))
+                            .addComponent(txtMontoProducto, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 320, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addComponent(btnCapturaEgresos, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(174, 174, 174))))
+                        .addGap(134, 134, 134)))
+                .addContainerGap(79, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(40, 40, 40)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(34, 34, 34)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cbxProducto, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -199,11 +196,11 @@ Vector vectorProveedor = new Vector();
                     .addComponent(txtMontoProducto, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(20, 20, 20)
                 .addComponent(btnCapturaEgresos, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addContainerGap(46, Short.MAX_VALUE))
         );
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -212,19 +209,50 @@ Vector vectorProveedor = new Vector();
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
-
-        pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void txtMontoProductoKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtMontoProductoKeyTyped
+    private void btnCapturaEgresosActionPerformed(ActionEvent evt) {//GEN-FIRST:event_btnCapturaEgresosActionPerformed
+        try {
+            if (txtMontoProducto.getText().length() < 1) {
+                return;
+            }
+            Inventory_Type producto = inventory_type.stream()
+                    .filter(obj -> cbxProducto.getSelectedItem().toString().equals(obj.Description))
+                    .findAny()
+                    .orElse(null);
+            int cantidad = Integer.parseInt(nupCantidad.getValue().toString());
+
+            int n = JOptionPane.showConfirmDialog(null,
+                    "¿Desea agregar este producto al pedido? ", "",
+                    JOptionPane.YES_NO_OPTION);
+            if (n == JOptionPane.YES_OPTION) {
+
+                con = new Conexion();
+                con.Conectar();
+                try {
+                    con.AddToRequest(Save.Request, new Inventory(producto.Id, cantidad, MontoProduct, 0));
+                } catch (SQLException ex) {
+                }
+                con.Desconectar();
+
+                JOptionPane.showMessageDialog(this, "Producto agregado a pedido con éxito.");
+                this.dispose();
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Producto no existente.", "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+        }
+    }//GEN-LAST:event_btnCapturaEgresosActionPerformed
+
+    private void txtMontoProductoKeyTyped(KeyEvent evt) {//GEN-FIRST:event_txtMontoProductoKeyTyped
 
     }//GEN-LAST:event_txtMontoProductoKeyTyped
 
-    private void txtMontoProductoKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtMontoProductoKeyPressed
+    private void txtMontoProductoKeyPressed(KeyEvent evt) {//GEN-FIRST:event_txtMontoProductoKeyPressed
 
     }//GEN-LAST:event_txtMontoProductoKeyPressed
 
-    private void txtMontoProductoKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtMontoProductoKeyReleased
+    private void txtMontoProductoKeyReleased(KeyEvent evt) {//GEN-FIRST:event_txtMontoProductoKeyReleased
         try {
             MontoProduct = Double.parseDouble(txtMontoProducto.getText());
         } catch (NumberFormatException e) {
@@ -232,58 +260,22 @@ Vector vectorProveedor = new Vector();
             txtMontoProducto.setText(null);
         }
     }//GEN-LAST:event_txtMontoProductoKeyReleased
-double MontoProduct;
- Conexion con;
-     DecimalFormat formatea;
-    List<Sale_Inventory> sale_inventory;
-List<Inventory_Type> inventory_type;
-    private void cbxProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxProductoActionPerformed
+
+    private void cbxProductoActionPerformed(ActionEvent evt) {//GEN-FIRST:event_cbxProductoActionPerformed
         try {
             Inventory_Type producto = inventory_type.stream()
-            .filter(obj -> cbxProducto.getSelectedItem().toString().equals(obj.Description))
-            .findAny()
-            .orElse(null);
-                MontoProduct=producto.Price*Double.parseDouble(nupCantidad.getValue().toString());
-    
-            txtMontoProducto.setText(""+MontoProduct);
-            } catch (NumberFormatException e) {
+                    .filter(obj -> cbxProducto.getSelectedItem().toString().equals(obj.Description))
+                    .findAny()
+                    .orElse(null);
+            MontoProduct = producto.Price * Double.parseDouble(nupCantidad.getValue().toString());
 
-        }finally{}
+            txtMontoProducto.setText("" + MontoProduct);
+        } catch (NumberFormatException e) {
+
+        } finally {
+        }
     }//GEN-LAST:event_cbxProductoActionPerformed
 
-    private void btnCapturaEgresosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCapturaEgresosActionPerformed
-       try{
-            if(txtMontoProducto.getText().length()<1){
-                return;
-            }
-            Inventory_Type producto = inventory_type.stream()
-            .filter(obj -> cbxProducto.getSelectedItem().toString().equals(obj.Description))
-            .findAny()
-            .orElse(null);
-
-            if(Integer.parseInt(nupCantidad.getValue().toString())<=(producto.PuntoVentaStock))
-            {
-                try{
-                con=new Conexion();
-                con.Conectar();
-              con.AddSaleInventory(new Sale_Inventory(0,producto.Id,Save.Sale2.Id,Integer.parseInt(nupCantidad.getValue().toString()),MontoProduct));
-              con.Desconectar();}catch (SQLException ex) {}     
-        con.Desconectar();
-                 JOptionPane.showMessageDialog(this,"Producto agregado a venta con éxito.");
-            this.dispose();
-           
-                
-            }else{
-                JOptionPane.showMessageDialog(this,"Inventario insuficiente en punto de venta .","Inventario insuficiente",JOptionPane.ERROR_MESSAGE);
-            }
-        }catch(Exception e){
-               JOptionPane.showMessageDialog(this,"Producto no existente.","Error",JOptionPane.ERROR_MESSAGE);
-       }finally{}
-    }//GEN-LAST:event_btnCapturaEgresosActionPerformed
-
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -298,31 +290,30 @@ List<Inventory_Type> inventory_type;
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(AddSaleProduct.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(AddRegInventario.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(AddSaleProduct.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(AddRegInventario.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(AddSaleProduct.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(AddRegInventario.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(AddSaleProduct.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(AddRegInventario.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new AddSaleProduct().setVisible(true);
+                new AddRegInventario().setVisible(true);
             }
         });
     }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel Contacto;
     private javax.swing.JButton btnCapturaEgresos;
     private javax.swing.JComboBox<String> cbxProducto;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel17;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JSpinner nupCantidad;
     private javax.swing.JTextField txtMontoProducto;
